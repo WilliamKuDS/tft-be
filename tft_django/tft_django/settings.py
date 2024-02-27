@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'tft.apps.TftConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -72,15 +73,14 @@ WSGI_APPLICATION = 'tft_django.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
         "NAME": "tft",
         "USER": "tft",
         "PASSWORD": "drogo98",
-        "HOST": "127.0.0.1",
-        "PORT": "3306",
+        "HOST": "10.10.10.120",
+        "PORT": "5432",
     }
 }
 
