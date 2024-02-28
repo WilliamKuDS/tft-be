@@ -10,9 +10,9 @@ import argparse
 
 
 class tftQuery():
-    def __init__(self, numofGames=100):
+    def __init__(self, numofGames=10):
         self.gameJSON = []
-        self.numOfGames = numofGames
+        self.numOfGames = int(numofGames)
         self.path = None
         self.playerList = set()
         self.jsonPath = os.getcwd() + '/tft_selenium/data/names.json'
@@ -232,7 +232,7 @@ class tftQuery():
         count = 0
         with open(self.jsonPath, 'r') as playerList:
             for player in playerList.readlines():
-                if count == numOfPlayers:
+                if count == int(numOfPlayers):
                     break
                 url = json.loads(player).get('URL')
                 path = self.playerFolder + url[34:] + '.json'

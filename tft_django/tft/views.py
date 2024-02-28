@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from .models import User
 from .models import Game
+from .misc import saveJSONToDatabase
 import json
-import sys
 # Create your views here.
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -11,7 +11,7 @@ def index(request):
     return HttpResponse("Hello, world. You're at the tft_django")
 
 @csrf_exempt
-def game(request):
+def saveOneGame(request: str):
     if request.method == 'GET':
         games = Game.objects.all()
         lst =[]
@@ -20,36 +20,16 @@ def game(request):
         return HttpResponse(games)
 
     if request.method == 'POST':
-        body = json.load(request)
-        game_instance = Game.objects.create(
-            playerGameID = body['PlayerGameID'],
-            playerName = body['PlayerName'],
-            gameID = body["GameID"],
-            queue = body["Queue"],
-            placement = body["Placement"],
-            level = body["Level"],
-            length = body["Length"],
-            round = body["Round"],
-            augments = body["Augments"],
-            headliner = body["Headliner"],
-            traits = body["Traits"],
-            units = body["Units"]
-        )
-        game_instance.save()
+        data = json.loads(request)
+        saveJSONToDatabase(data)
         return HttpResponse('Done')
 
-#Get all games
+@csrf_exempt
+def deleteAllGames(request):
+    if request.method == 'DELETE':
+        Game.objects.all().delete()
+    return HttpResponse('Purged')
 
-
-
-'''def name(request, name, region):
-    try:
-        get_name = str(User.objects.get(name=name, region=region))
-        split_name = get_name.split('/')
-        # get_region = User.objects.get(region=region)
-        return HttpResponse("Current Name is {}-{}, Region: {}".format(split_name[0], split_name[1], split_name[2]))
-    except:
-        return HttpResponse("No User Found")'''
 
 
 
