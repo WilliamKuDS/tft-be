@@ -1,5 +1,6 @@
 from django.db import models
 
+
 # Create your models here.
 class User(models.Model):
     name = models.CharField(max_length=200)
@@ -10,7 +11,9 @@ class User(models.Model):
         return self.name + '/' + self.tag + '/' + self.region
 
 class Game(models.Model):
-    gameID = models.CharField(max_length=20,primary_key=True)
+    playerGameID = models.CharField(max_length=100, primary_key=True)
+    playerName = models.CharField(max_length=200)
+    gameID = models.CharField(max_length=20)
     queue = models.CharField(max_length=10)
     placement = models.IntegerField()
     level = models.IntegerField()
@@ -21,5 +24,6 @@ class Game(models.Model):
     traits = models.CharField(max_length=100)
     units = models.CharField(max_length=1000)
 
-    def __str__(self):
-        return self.gameID + "|" + self.units +"\n"
+
+    #def __str__(self):
+    #    return self.gameID + "|" + self.units +"\n"
