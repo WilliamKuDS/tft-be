@@ -31,12 +31,12 @@ def saveUser(request):
 @csrf_exempt
 def frontEndUser(request):
     if request.method == 'POST':
-        body = json.load(request)
-        url = getURL(body['Name'], body['Region'].lower(), body['Tag'])
-        player = tftQuery(body['Length'])
+        body = json.loads(request.body.decode('utf-8'))
+        url = getURL(body['playerName'], body['playerRegion'].lower(), body['playerTag'])
+        player = tftQuery()
         player.getInfo(url)
 
-        path = os.getcwd() + '/tft_selenium/data/players/' + body['Name'] + '-' + body['Tag'] + '.json'
+        path = os.getcwd() + '/tft_selenium/data/players/' + body['playerName'] + '-' + body['playerTag'] + '.json'
         with open(path, 'r') as data:
             for jsonLine in data.readlines()[1:]:
                 misc.saveJSONToDatabase(json.loads(jsonLine))

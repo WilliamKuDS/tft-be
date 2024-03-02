@@ -20,5 +20,6 @@ from django.urls import include, path
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('tft/', include('tft.urls')),
-    path('query/', include('tft_selenium.urls'))
+    path('query/', include('tft_selenium.urls')),
+    path('ml/', include('tft_ml.urls'))
 ]
