@@ -1,6 +1,5 @@
-from django.shortcuts import render
-from .tft_selenium import tftQuery
-from .tft_selenium import getURL
+from tft_selenium.tft_selenium import tftQuery
+from tft_selenium.tft_selenium import getURL
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
@@ -8,7 +7,7 @@ import os
 from tft import misc
 from .misc import saveAllPlayersInFolder
 
-# Create your views here.
+# Create your api here.
 @csrf_exempt
 def queryUser(request):
     if request.method == 'POST':

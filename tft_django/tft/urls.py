@@ -27,6 +27,7 @@ urlpatterns = [
     path("game/info", gameInfo_api.readGameInfoByGameID, name="readGameInfoByGameID"),
     path("game/info/playerid", gameInfo_api.readGameInfoByPlayerID, name="readGameInfoByGameID"),
     path("game/info/gameid", gameInfo_api.readGameInfoByGameID, name="readGameInfoByGameID"),
+    path("game/info/playername", gameInfo_api.readGameInfoByPlayerName, name="readGameInfoByPlayerName"),
     path("game/info/create", gameInfo_api.createGameInfo, name="createGameInfo"),
     path("game/info/update", gameInfo_api.updateGameInfo, name="updateGameInfo"),
     path("game/info/delete", gameInfo_api.deleteGameInfoByGameID, name="deleteGameInfoByGameID"),
@@ -45,6 +46,7 @@ urlpatterns = [
     # ------------------------------------------
     # Item API Paths
     path("item", item_api.readItemByName, name="readItemByName"),
+    path("item/all", item_api.readItemAll, name="readItemAll"),
     path("itemid", item_api.readItemByID, name="readItemByID"),
     path("item/create", item_api.createItem, name="createItem"),
     path("item/update", item_api.updateItem, name="updateItem"),
@@ -84,6 +86,7 @@ urlpatterns = [
     # Unit API Paths
     path("unit", unit_api.readUnitByName, name="readUnitByName"),
     path("unitid", unit_api.readUnitByID, name="readUnitByID"),
+    path("unit/all", unit_api.readUnitAll, name="readUnitAll"),
     path("unit/create", unit_api.createUnit, name="createUnit"),
     path("unit/update", unit_api.updateUnit, name="updateUnit"),
     path("unit/delete", unit_api.deleteUnitByName, name="deleteUnitByName"),

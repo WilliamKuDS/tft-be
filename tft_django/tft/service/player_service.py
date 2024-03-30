@@ -40,7 +40,7 @@ def readPlayerID(data):
 
 def readPlayerValues(data):
     playerName = data['player_name']
-    region = data['player_region'].lower()
+    region = data['region'].lower()
 
     playerObject = player.safe_get(player_name=playerName, region=region)
 

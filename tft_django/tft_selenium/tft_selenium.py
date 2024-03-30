@@ -37,8 +37,9 @@ class tftQuery():
 
         if not os.path.isfile(self.path):
             self.formatData({'URL': url}, self.path)
-
-        gameInfo = browser.find_elements(By.CLASS_NAME, 'PlayerGame')
+        wait = WebDriverWait(browser, timeout=2)
+        gameInfo = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'PlayerGame')))
+        #gameInfo = browser.find_elements(By.CLASS_NAME, 'PlayerGame')
         count = 0
         for game in gameInfo:
             if count == self.numOfGames:
@@ -47,7 +48,11 @@ class tftQuery():
             gameInfo = {}
 
             # Get GameID
-            gameID = game.get_attribute('id')
+            try:
+                gameID = game.get_attribute('id')
+            except:
+                print('No game ID found')
+                continue
             if gameID in gameID_duplicates:
                 continue
 
@@ -101,7 +106,7 @@ class tftQuery():
             wait.until(EC.visibility_of_element_located((By.CLASS_NAME, 'PlayerGameMatch')))
         except:
             browser.quit()
-            raise Exception("No Player Found")
+            print("Player not found")
 
         # wait.until(EC.presence_of_element_located((By.CLASS_NAME, "PlayerGameMatch")))
 
@@ -212,7 +217,8 @@ class tftQuery():
         # Click drop down button for each game
         wait = WebDriverWait(game, timeout=2)
         wait.until(EC.presence_of_element_located((By.CLASS_NAME, "PlayerGameMatch")))
-        game.find_elements(By.CLASS_NAME, 'Expand')[0].click()
+        wait.until(EC.element_to_be_clickable((By.CLASS_NAME, 'Expand'))).click()
+        #game.find_elements(By.CLASS_NAME, 'Expand')[0].click()
         players = game.find_elements(By.CLASS_NAME, 'PlayerMatchNameLink')
 
         player_duplicates = self.getDuplicates('URL', self.jsonPath)
@@ -247,6 +253,8 @@ class tftQuery():
             with open(file, 'r') as outfile:
                 url = json.loads(outfile.readlines()[0])['URL']
                 self.getInfo(url)
+
+
 
 
 def getURL(name, region, tag):

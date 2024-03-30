@@ -21,6 +21,11 @@ def readUnitByName(request):
     return HttpResponse(data)
 
 
+def readUnitAll(request):
+    data = service.readUnitAll()
+    return HttpResponse(data)
+
+
 def updateUnit(request):
     body = json.loads(request.body)
     data = service.updateUnit(body)

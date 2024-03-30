@@ -1,13 +1,17 @@
 import time
-
 from selenium import webdriver
 from selenium.common import StaleElementReferenceException
 from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 def initBrowser():
-    print('Initializing browser')
+    # options = webdriver.FirefoxOptions()
+    # options.add_argument("-headless")
+    # options.add_argument("start-maximized")
+    # browser = webdriver.Firefox(options=options)
+    # browser.maximize_window()
     options = webdriver.ChromeOptions()
     options.add_argument("--headless=new")
     options.add_argument('--start-maximized')
@@ -16,7 +20,7 @@ def initBrowser():
 
 def scroll_down(browser):
     """A method for scrolling the page."""
-    print("Scrolling Old_page")
+    print("Scrolling Page")
     # Get scroll height.
     last_height = browser.execute_script("return document.body.scrollHeight")
     while True:
@@ -32,13 +36,17 @@ def scroll_down(browser):
             break
         last_height = new_height
 
-def clickExpand(browser):
-    #css_element = '#' + playerName + ' > div:nth-child(1) > div:nth-child(2) > div:nth-child(3) > div:nth-child(2)'
-    button = staleElementLoopByClass(browser, 'Expand', 5)
-    button.click()
+def staleElementLoopForClickExpand(browser, element, attempts):
+    wait = WebDriverWait(browser, timeout=2)
+    for i in range(attempts):
+        try:
+            wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, element))).click()
+            break
+        except Exception as e:
+            print("Error {}, Trying Again. Attempt: {}. Element: {}".format(e, i, element))
 
 def staleElementLoopByClass(browser, element, attempts):
-    wait = WebDriverWait(browser, timeout=5)
+    wait = WebDriverWait(browser, timeout=2)
     for i in range(attempts):
         try:
             data = wait.until(EC.visibility_of_element_located((By.CLASS_NAME, element)))
@@ -48,26 +56,45 @@ def staleElementLoopByClass(browser, element, attempts):
     return False
 
 def staleAllElementsLoopByClass(browser, element, attempts):
-    wait = WebDriverWait(browser, timeout=5)
+    wait = WebDriverWait(browser, timeout=2)
     for i in range(attempts):
         try:
             data = wait.until(EC.visibility_of_all_elements_located((By.CLASS_NAME, element)))
             return data
         except Exception as e:
-            print("Error {}, Trying Again. Attempt: {}".format(e, i))
+            print("Error {}, trying Again. Attempt: {}. Element: {}".format(e, i, element))
     return False
 
 def staleElementLoop(browser, element, attempts):
-    wait = WebDriverWait(browser, timeout=5)
+    wait = WebDriverWait(browser, timeout=2)
     for i in range(attempts):
         try:
             data = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, element)))
             return data
-        except(StaleElementReferenceException):
-            print("Data Stale, Trying Again. Attempt: {}".format(i))
+        except Exception as e:
+            print("Error {}, trying Again. Attempt: {}. Element: {}".format(e, i, element))
     return False
 
+def staleElementLoopByXPath(browser, element, attempts):
+    wait = WebDriverWait(browser, timeout=2)
+    for i in range(attempts):
+        try:
+            data = wait.until(EC.visibility_of_element_located((By.XPATH, element)))
+            return data
+        except Exception as e:
+            print("Error {}, trying Again. Attempt: {}. Element: {}".format(e, i, element))
+    return False
+
+def is_element_visible(browser, xpath):
+    wait = WebDriverWait(browser, 2)
+    try:
+        wait.until(EC.visibility_of_element_located((By.XPATH, xpath)))
+        return True
+    except Exception:
+        return False
+
 def loadProfilePage(url):
+    print('Initializing browser')
     browser = initBrowser()
     browser.get(url)
     wait = WebDriverWait(browser, timeout=5)
@@ -80,7 +107,7 @@ def loadProfilePage(url):
         return False
 
     print('Player found, starting query')
-    scroll_down(browser)
+    #scroll_down(browser)
 
     return browser
 
@@ -88,8 +115,13 @@ def loadPage(url):
     browser = initBrowser()
     browser.get(url)
 
-    scroll_down(browser)
+    #scroll_down(browser)
 
+    return browser
+
+def quickLoadPage(url):
+    browser = initBrowser()
+    browser.get(url)
     return browser
 
 

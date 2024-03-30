@@ -1,11 +1,11 @@
 from tft.models import unit
 from json import dumps
 from django.forms.models import model_to_dict
+from django.core import serializers
 
 
 def createUnit(data):
     name = data['name']
-    tier = data['tier']
     trait = data['trait']
     setID = data['set_id']
 
@@ -15,7 +15,6 @@ def createUnit(data):
     else:
         unit_insert = unit(
             name=name,
-            tier=tier,
             trait=trait,
             set_id=setID
         )
@@ -50,11 +49,16 @@ def readUnitName(data):
 
         return jsonData
 
+def readUnitAll():
+    unitObjects = unit.objects.all()
+    jsonData = serializers.serialize('json', unitObjects)
+
+    return jsonData
+
 
 def updateUnit(data):
     unitID = data['unit_id']
     name = data['name']
-    tier = data['tier']
     trait = data['trait']
     setID = data['set_id']
 
@@ -63,7 +67,6 @@ def updateUnit(data):
         print('Unit {} does not exist'.format(unitID))
     else:
         unitObject.name = name
-        unitObject.tier = tier
         unitObject.trait = trait
         unitObject.set_id = setID
         unitObject.save()

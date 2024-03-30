@@ -1,6 +1,8 @@
+import json
+
 from django.db import IntegrityError
 
-from tft.models import game_info, player
+from tft.models import game_info, player, game
 from django.forms.models import model_to_dict
 from django.core.serializers import serialize
 from json import dumps
@@ -57,12 +59,36 @@ def readGameInfoPlayerID(data):
     playerID = data['player_id']
 
     gameinfoObject = game_info.safe_get_player_id(player_id=playerID)
-    print(gameinfoObject)
     if gameinfoObject is None:
         print("Player {} does not exist in database".format(playerID))
     else:
         serialized_data = serialize("json", gameinfoObject)
         return serialized_data
+
+def readGameInfoPlayerName(data):
+    playerName = data['player_name']
+    playerRegion = data['region']
+    playerID = player.safe_get(player_name=playerName, region=playerRegion).pk
+    gameinfoObject = game_info.safe_get_player_id(player_id=playerID)
+    if gameinfoObject is None:
+        print("Player {} does not exist in database".format(playerID))
+    else:
+        modified_gameinfoObject = gameinfoObject.values()
+        for item in modified_gameinfoObject:
+            gameData = game.safe_get_player_game_id(player_id=playerID, game_id=item['game_id'])
+            item['icon'] = gameData.icon
+            item['placement'] = gameData.placement
+        print(type(modified_gameinfoObject))
+        #serialized_data = serialize("json", modified_gameinfoObject)
+        #print(serialized_data)
+        gameinfoObjectWithPlayer = {
+            'gameinfo': list(modified_gameinfoObject),
+            'playerID': playerID,
+        }
+        jsonData = json.dumps(gameinfoObjectWithPlayer, indent=4, sort_keys=True, default=str)
+        print(jsonData)
+        return jsonData
+
 
 
 def updateGameInfo(data):

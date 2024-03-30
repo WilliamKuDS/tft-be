@@ -1,7 +1,6 @@
 import argparse
 import json
 from datetime import timedelta, datetime
-import re
 
 
 def getPlayerNameFromURL(url):
@@ -55,10 +54,20 @@ def getURL(name, region, tag):
 
 def calculate_date(time_string):
     current_time = datetime.now()
+    if "min" in time_string:
+        if time_string.startswith("a"):  # Check if it's "a day ago"
+            return current_time - timedelta(minutes=1)
+        else:
+            minutes = int(time_string.split()[0])
+            return current_time - timedelta(minutes=minutes)
+
 
     if "hour" in time_string:
-        hours = int(time_string.split()[0])
-        return current_time - timedelta(hours=hours)
+        if time_string.startswith("an"):
+            return current_time - timedelta(hours=1)
+        else:
+            hours = int(time_string.split()[0])
+            return current_time - timedelta(hours=hours)
 
     elif "day" in time_string:
         if time_string.startswith("a"):  # Check if it's "a day ago"

@@ -1,7 +1,5 @@
 import json
-
-from django.http import HttpResponse
-
+from django.http import HttpResponse, JsonResponse
 import tft.service.gameInfo_service as service
 
 
@@ -20,6 +18,11 @@ def readGameInfoByGameID(request):
 def readGameInfoByPlayerID(request):
     body = json.loads(request.body)
     data = service.readGameInfoPlayerID(body)
+    return HttpResponse(data)
+
+def readGameInfoByPlayerName(request):
+    body = json.loads(request.body)
+    data = service.readGameInfoPlayerName(body)
     return HttpResponse(data)
 
 

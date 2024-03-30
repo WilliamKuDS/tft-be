@@ -6,7 +6,10 @@ class player(models.Model):
     player_id = models.AutoField(primary_key=True)
     player_name = models.CharField(max_length=200)
     region = models.CharField(max_length=2)
-    last_updated = models.DateField()
+    player_rank = models.CharField(max_length=200)
+    player_lp = models.IntegerField()
+    icon = models.CharField(max_length=200)
+    last_updated = models.DateField(null=True)
 
     def safe_get(player_name, region):
         try:
@@ -18,32 +21,6 @@ class player(models.Model):
         try:
             return player.objects.get(player_id=player_id)
         except player.DoesNotExist:
-            return None
-
-class game_info(models.Model):
-    game_id = models.CharField(max_length=200, primary_key=True)
-    queue = models.CharField(max_length=50)
-    lobby_rank = models.CharField(max_length=50)
-    player_id = models.ManyToManyField(player)
-
-    def safe_get_game_id(game_id):
-        try:
-            return game_info.objects.get(game_id=game_id)
-        except game_info.DoesNotExist:
-            return None
-        except game_info.IntegrityError:
-            return None
-
-    def safe_get_player_id(player_id):
-        try:
-            return game_info.objects.filter(player_id=player_id)
-        except game_info.DoesNotExist:
-            return None
-
-    def safe_add_player_id(player_id):
-        try:
-            return game_info.player_id.add(player_id=player_id)
-        except game_info.IntegrityError:
             return None
 
 class set(models.Model):
@@ -66,7 +43,7 @@ class set(models.Model):
 class patch(models.Model):
     patch_id = models.FloatField(primary_key=True)
     set_id = models.ForeignKey(set, on_delete=models.CASCADE)
-    revival_set_id = models.ForeignKey(set, on_delete=models.CASCADE, related_name='revival_set_id')
+    revival_set_id = models.ForeignKey(set, on_delete=models.CASCADE, related_name='revival_set_id', blank=True, null=True)
     date_start = models.DateField()
     date_end = models.DateField()
 
@@ -88,10 +65,53 @@ class patch(models.Model):
         except patch.DoesNotExist:
             return None
 
+class game_info(models.Model):
+    game_id = models.CharField(max_length=200, primary_key=True)
+    queue = models.CharField(max_length=50)
+    lobby_rank = models.CharField(max_length=50)
+    patch_id = models.ForeignKey(patch, on_delete=models.CASCADE)
+    date = models.DateField()
+    player_id = models.ManyToManyField(player)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['queue'])
+        ]
+
+    def safe_get_game_id(game_id):
+        try:
+            return game_info.objects.get(game_id=game_id)
+        except game_info.DoesNotExist:
+            return None
+        except game_info.IntegrityError:
+            return None
+
+    def safe_get_player_id(player_id):
+        try:
+            return game_info.objects.filter(player_id=player_id)
+        except game_info.DoesNotExist:
+            return None
+
+    def safe_get_player_in_game_id(game_id, player_id):
+        try:
+            return game_info.objects.filter(game_id=game_id, player_id=player_id)
+        except game_info.DoesNotExist:
+            return None
+
+    def safe_add_player_id(player_id):
+        try:
+            return game_info.player_id.add(player_id=player_id)
+        except game_info.IntegrityError:
+            return None
+
+
 class augment(models.Model):
     augment_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=100)
+    display_name = models.CharField(max_length=100)
     tier = models.IntegerField()
+    description = models.CharField(max_length=2000)
+    icon = models.CharField(max_length=500, null=True, blank=True)
     set_id = models.ForeignKey(set, on_delete=models.CASCADE)
 
     def safe_get_id(augment_id):
@@ -106,9 +126,32 @@ class augment(models.Model):
         except augment.DoesNotExist:
             return None
 
+class synergy(models.Model):
+    synergy_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=50)
+    count = models.IntegerField()
+    description = models.CharField(max_length=1000)
+    set_id = models.ForeignKey(set, on_delete=models.CASCADE)
+
+    def safe_get_id(synergy_id):
+        try:
+            return synergy.objects.get(synergy_id=synergy_id)
+        except synergy.DoesNotExist:
+            return None
+
+    def safe_get_by_trait(name, count, set_id):
+        try:
+            return synergy.objects.get(name=name, count=count, set_id=set_id)
+        except synergy.DoesNotExist:
+            return None
+
 class trait(models.Model):
     trait_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=100)
+    display_name = models.CharField(max_length=100)
+    description = models.CharField(max_length=1000)
+    synergy = models.ManyToManyField(synergy)
+    icon = models.CharField(max_length=500, null=True, blank=True)
     set_id = models.ForeignKey(set, on_delete=models.CASCADE)
 
     def safe_get_id(trait_id):
@@ -123,9 +166,15 @@ class trait(models.Model):
         except trait.DoesNotExist:
             return None
 
+
+
 class item(models.Model):
     item_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=100)
+    display_name = models.CharField(max_length=100)
+    recipe = models.ManyToManyField('self', blank=True)
+    description = models.CharField(max_length=1000)
+    icon = models.CharField(max_length=500, null=True, blank=True)
     set_id = models.ForeignKey(set, on_delete=models.CASCADE)
 
     def safe_get_id(item_id):
@@ -142,14 +191,27 @@ class item(models.Model):
 
 class unit(models.Model):
     unit_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=100)
+    display_name = models.CharField(max_length=100)
     tier = models.IntegerField()
     trait = models.ManyToManyField(trait)
+    ability_name = models.CharField(max_length=200)
+    ability_description = models.CharField(max_length=1000)
+    ability_info = models.CharField(max_length=1000)
+    ability_icon = models.CharField(max_length=500)
+    stats = models.CharField(max_length=1000)
+    icon = models.CharField(max_length=200, null=True, blank=True)
     set_id = models.ForeignKey(set, on_delete=models.CASCADE)
 
     def safe_get_id(unit_id):
         try:
             return unit.objects.get(unit_id=unit_id)
+        except unit.DoesNotExist:
+            return None
+
+    def safe_get_name(name, set_id):
+        try:
+            return unit.objects.get(name=name, set_id=set_id)
         except unit.DoesNotExist:
             return None
 
@@ -177,8 +239,6 @@ class game_unit(models.Model):
             return None
 
 
-
-
 class game_trait(models.Model):
     game_trait_id = models.AutoField(primary_key=True)
     trait_id = models.ForeignKey(trait, on_delete=models.CASCADE)
@@ -201,7 +261,7 @@ class game(models.Model):
     player_game_id = models.AutoField(primary_key=True)
     player_id = models.ForeignKey(player, on_delete=models.CASCADE)
     game_id = models.ForeignKey(game_info, on_delete=models.CASCADE)
-    patch_id = models.ForeignKey(patch, on_delete=models.CASCADE)
+    icon = models.CharField(max_length=200)
     placement = models.IntegerField()
     level = models.IntegerField()
     length = models.CharField(max_length=10)

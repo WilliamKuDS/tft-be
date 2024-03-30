@@ -21,6 +21,11 @@ def readItemByName(request):
     return HttpResponse(data)
 
 
+def readItemAll(request):
+    data = service.readItemAll()
+    return HttpResponse(data)
+
+
 def updateItem(request):
     body = json.loads(request.body)
     data = service.updateItem(body)

@@ -1,7 +1,7 @@
 from tft.models import item
 from django.forms.models import model_to_dict
 from json import dumps
-
+from django.core import serializers
 
 
 def createItem(data):
@@ -45,6 +45,13 @@ def readItemName(data):
         jsonData = dumps(dictObject, indent=4, sort_keys=True, default=str)
 
         return jsonData
+
+
+def readItemAll():
+    unitObjects = item.objects.all()
+    jsonData = serializers.serialize('json', unitObjects)
+
+    return jsonData
 
 
 def updateItem(data):

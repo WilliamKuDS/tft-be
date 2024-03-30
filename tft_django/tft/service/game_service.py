@@ -1,4 +1,4 @@
-from tft.models import game, player, game_info, patch, trait
+from tft.models import game, player, game_info, patch, trait, augment
 from django.forms.models import model_to_dict
 from json import dumps
 
@@ -72,6 +72,12 @@ def readGameByPlayerGame(data):
         print("Player {} does not exist in database".format(playerID))
     else:
         dictObject = model_to_dict(gameObject)
+        dictObject['augment_id'] = [[item.display_name, item.icon] for item in dictObject['augment_id']]
+        dictObject['game_trait_id'] = [[item.trait_id.display_name, item.count, item.trait_id.icon] for item in dictObject['game_trait_id']]
+        dictObject['game_unit_id'] = [[i.unit_id.display_name, i.star, list(i.item.all().values_list('display_name', 'icon')), i.unit_id.icon] for i in dictObject['game_unit_id']]
+        if gameObject.headliner_id is not None:
+            dictObject['headliner_id'] = [gameObject.headliner_id.name, gameObject.headliner_id.icon]
+
         jsonData = dumps(dictObject, indent=4, sort_keys=True, default=str)
 
         return jsonData

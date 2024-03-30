@@ -1,15 +1,5 @@
 from django.contrib import admin
-from .models import player
-from .models import patch
-from .models import augment
-from .models import trait
-from .models import item
-from .models import unit
-from .models import game_unit
-from .models import game_info
-from .models import game
-from .models import set
-from .models import game_trait
+from .models import player, patch, augment, trait, item, unit, game_unit, game_info, game, set, game_trait, synergy
 
 # Register your models here.
 admin.site.register(player)
@@ -23,3 +13,4 @@ admin.site.register(game_info)
 admin.site.register(game)
 admin.site.register(set)
 admin.site.register(game_trait)
+admin.site.register(synergy)

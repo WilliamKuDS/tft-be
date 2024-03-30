@@ -5,7 +5,6 @@ from json import dumps
 
 def createAugment(data):
     name = data['name']
-    tier = data['tier']
     setID = data['set_id']
 
     augmentObject = augment.safe_get_name(name=name, set_id=setID)
@@ -14,7 +13,6 @@ def createAugment(data):
     else:
         augment_insert = augment(
             name=name,
-            tier=tier,
             set_id=setID
         )
         augment_insert.save()
@@ -51,7 +49,6 @@ def readAugmentName(data):
 def updateAugment(data):
     augmentID = data['Augment_id']
     name = data['name']
-    tier = data['tier']
     setID = data['set_id']
 
     augmentObject = augment.safe_get_id(augment_id=augmentID)
@@ -59,7 +56,6 @@ def updateAugment(data):
         print('Augment {} does not exist'.format(augmentID))
     else:
         augmentObject.name = name
-        augmentObject.tier = tier
         augmentObject.set_id = setID
         augmentObject.save()
 
