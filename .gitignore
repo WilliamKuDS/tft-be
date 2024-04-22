@@ -1,1 +1,3 @@
 *.json
+tft_django/tft_ml/pipeline/data
+tft_django/tft_ml/pipeline/test-files

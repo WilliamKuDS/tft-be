@@ -13,7 +13,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 from tft.misc import insertAugment, insertTrait, insertUnit, insertItem, insertSet, insertSynergy
-from webdriver_selenium import loadPage, staleElementLoop, quickLoadPage, staleElementLoopByXPath, is_element_visible
+from tft_selenium.selenium.webdriver_selenium import loadPage, staleElementLoop, quickLoadPage, staleElementLoopByXPath
 
 import re
 
