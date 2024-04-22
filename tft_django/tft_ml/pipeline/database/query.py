@@ -142,9 +142,9 @@ WITH ranked_game_ids AS (
         tft_game_unit guu ON gu.game_unit_id = guu.game_unit_id
     JOIN
         tft_unit u ON guu.unit_id_id = u.unit_id
-    JOIN
+    LEFT JOIN
         tft_game_unit_item gui ON guu.game_unit_id = gui.game_unit_id
-    JOIN
+    LEFT JOIN
         tft_item i ON gui.item_id = i.item_id
     GROUP BY
         gu.game_id, guu.unit_id_id, u.name, guu.star
