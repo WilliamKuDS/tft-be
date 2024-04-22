@@ -2,3 +2,4 @@
 tft_django/tft_ml/pipeline/data
 tft_django/tft_ml/pipeline/test-files
 tft_django/tft_ml/pipeline/.ipynb_checkpoints
+tft_django/tft_ml/pipeline/database/database.ini
