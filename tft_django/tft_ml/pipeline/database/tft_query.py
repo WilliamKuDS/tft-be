@@ -199,3 +199,17 @@ JOIN
     traits_cte t ON rg.player_game_id = t.game_id
     """
     return query_optimized
+
+def tft_unit_query():
+    query = """
+    SELECT display_name, tier, stats, ability_name, ability_description, ability_info 
+    FROM tft_unit
+    """
+    return query
+
+def tft_item_query():
+    query = """
+    SELECT display_name, description 
+    FROM tft_item
+    """
+    return query
