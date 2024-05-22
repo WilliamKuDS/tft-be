@@ -104,15 +104,25 @@ def insertPatch(data):
         print("Patch {} already exists in database".format(data['patch_id']))
         return None
     try:
-        set_id = set.objects.get(set_id=float(data['set_id']))
-        insert_patch = patch(
-            patch_id=float(data['patch_id']),
-            set_id=set_id,
-            date=data['date']
-        )
-        insert_patch.save()
-    except IntegrityError as e:
-        print("Patch {} already exists in database. Error: {}".format(data['patch_id'], e))
+        patchID = data['patch_id']
+        setID = set.objects.get(set_id=float(data['set_id']))
+        dateStart = data['date_start']
+        dateEnd = data['date_end']
+        description = data['description']
+
+        patchObject = patch.safe_get_patch_id(patch_id=patchID)
+        if patchObject is not None:
+            print("Patch {} already exists in database".format(data['patch_id']))
+        else:
+            insert_patch = patch(
+                patch_id=int(patchID),
+                set_id=setID,
+                date_start=dateStart,
+                date_end=dateEnd,
+                description=description
+            )
+            insert_patch.save()
+
     except ValueError as e:
         print("Patch {} input incorrect. Error: {}".format(data['patch_id'], e))
 
