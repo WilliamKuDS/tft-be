@@ -100,9 +100,6 @@ def insertSet(data):
 
 
 def insertPatch(data):
-    if patch.objects.filter(patch_id=data['patch_id'], set_id=float(data['set_id'])).exists():
-        print("Patch {} already exists in database".format(data['patch_id']))
-        return None
     try:
         patchID = data['patch_id']
         setID = set.objects.get(set_id=float(data['set_id']))
