@@ -12,8 +12,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from tft.misc import insertAugment, insertTrait, insertUnit, insertItem, insertSet, insertSynergy
-from tft_selenium.selenium.webdriver_selenium import loadPage, staleElementLoop, quickLoadPage, staleElementLoopByXPath
+from tft.misc import insertAugment, insertTrait, insertUnit, insertItem, insertSet, insertSynergy, insertPatch
+from tft_selenium.selenium.webdriver_selenium import loadPage, staleElementLoop, quickLoadPage, staleElementLoopByXPath, staleAllElementsLoopByClass
 
 import re
 
@@ -193,19 +193,35 @@ def loadUnits(url):
     print("Units loaded")
 
 
-# def loadPatch(url):
-#     browser = loadPage(url)
-#     patchTable = staleElementLoop(browser, '.style__List-sc-106zuld-2', 5)
-#     patchList = patchTable.find_elements(By.XPATH, './child::*')
-#     for patches in patchList:
-#         patchID = patches.text.split('\n')[1].split(' ')[3]
-#         date = patches.find_element(By.CSS_SELECTOR, 'a:nth-child(1) > article:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(3) > time:nth-child(2)').get_attribute('datetime')
-#         date = str(parser.isoparse(date)).split(' ')[0]
-#         print(date)
-#     browser.close()
+def loadPatch(url):
+    browser = loadPage(url)
+    setID = browser.find_element(By.CLASS_NAME, 'wds-tabs__tab.wds-is-current').text.strip('Set ')
+    patchTable = browser.find_element(By.CLASS_NAME, 'wikitable').find_elements(By.TAG_NAME, 'tr')
+    prevPatchStartDate = None
+    for patch in patchTable[1:]:
+        patchStartDate = parser.parse(', '.join(patch.find_element(By.TAG_NAME, 'th').text.splitlines()[:2]))
+        patchInformation = patch.find_elements(By.TAG_NAME, 'td')
+        patchID = patchInformation[0].text.replace('V', '').split('.')
+        if len(patchID[1]) == 1:
+            patchID[1] = '0' + patchID[1]
+        patchID = ''.join(patchID)
+        patchDescription = patchInformation[1].text
+
+        insertPatch({
+            'patch_id': patchID,
+            'set_id': setID,
+            'date_start': patchStartDate,
+            'date_end': prevPatchStartDate,
+            'description': patchDescription
+        })
+        prevPatchStartDate = patchStartDate
+
+    browser.quit()
+    print("Patches loaded")
 
 
-patch_url = "https://www.leagueoflegends.com/en-us/news/tags/teamfight-tactics-patch-notes/"
+
+patch_url = "https://leagueoflegends.fandom.com/wiki/Patch_(Teamfight_Tactics)"
 # Set 10 Links
 main_url = "https://mobalytics.gg/tft"
 
@@ -230,16 +246,17 @@ items_url = [items_basic_url, items_combined_url, items_artifact_url, items_supp
 units_url = "https://mobalytics.gg/tft/champions"
 
 loadSet(main_url)
-for url in augment_url:
-    loadAugments(url)
-
-for url in traits_url:
-    loadTraits(url)
-
-for url in items_url:
-    loadItems(url)
-
-loadUnits(units_url)
+loadPatch(patch_url)
+# for url in augment_url:
+#     loadAugments(url)
+#
+# for url in traits_url:
+#     loadTraits(url)
+#
+# for url in items_url:
+#     loadItems(url)
+#
+# loadUnits(units_url)
 
 # # Set 3.5 Links
 # main_url = "https://mobalytics.gg/tft/set3-5"
