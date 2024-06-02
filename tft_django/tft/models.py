@@ -26,7 +26,6 @@ class player(models.Model):
 class set(models.Model):
     set_id = models.FloatField(primary_key=True)
     set_name = models.CharField(max_length=200)
-    set_type = models.CharField(max_length=50)
 
     def safe_get(set_id):
         try:

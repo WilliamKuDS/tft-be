@@ -82,7 +82,6 @@ def insertSet(data):
     try:
         setID = data['set_id']
         setName = data['set_name']
-        setType = data['set_type']
 
         setObject = set.safe_get(set_id=setID)
         if setObject is not None:
@@ -90,8 +89,7 @@ def insertSet(data):
         else:
             insert_set = set(
                 set_id=setID,
-                set_name=setName,
-                set_type=setType
+                set_name=setName
             )
             insert_set.save()
 
