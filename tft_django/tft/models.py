@@ -40,11 +40,12 @@ class set(models.Model):
             return None
 
 class patch(models.Model):
-    patch_id = models.IntegerField(primary_key=True)
+    patch_id = models.CharField(primary_key=True, max_length=10, unique=True)
     set_id = models.ForeignKey(set, on_delete=models.CASCADE)
     date_start = models.DateField()
     date_end = models.DateField(blank=True, null=True)
     highlights = models.CharField(max_length=200)
+    patch_url = models.CharField(max_length=200)
 
     def safe_get_patch_id(patch_id):
         try:

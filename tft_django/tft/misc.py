@@ -108,13 +108,15 @@ def insertPatch(data):
             dateStart = data['date_start']
             dateEnd = data['date_end']
             highlights = data['highlights']
+            patch_url = data['patch_url']
 
             insert_patch = patch(
-                patch_id=int(patchID),
+                patch_id=patchID,
                 set_id=setID,
                 date_start=dateStart,
                 date_end=dateEnd,
-                highlights=highlights
+                highlights=highlights,
+                patch_url=patch_url
             )
             insert_patch.save()
 
