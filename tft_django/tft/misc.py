@@ -81,12 +81,12 @@ def insertPlayerToGameInfo(data):
 def insertSet(data):
     try:
         setID = data['set_id']
-        setName = data['set_name']
-
         setObject = set.safe_get(set_id=setID)
         if setObject is not None:
             print("Set {} already exists in database".format(setID))
         else:
+            setName = data['set_name']
+
             insert_set = set(
                 set_id=setID,
                 set_name=setName
@@ -100,21 +100,21 @@ def insertSet(data):
 def insertPatch(data):
     try:
         patchID = data['patch_id']
-        setID = set.objects.get(set_id=float(data['set_id']))
-        dateStart = data['date_start']
-        dateEnd = data['date_end']
-        description = data['description']
-
         patchObject = patch.safe_get_patch_id(patch_id=patchID)
         if patchObject is not None:
             print("Patch {} already exists in database".format(data['patch_id']))
         else:
+            setID = set.objects.get(set_id=float(data['set_id']))
+            dateStart = data['date_start']
+            dateEnd = data['date_end']
+            highlights = data['highlights']
+
             insert_patch = patch(
                 patch_id=int(patchID),
                 set_id=setID,
                 date_start=dateStart,
                 date_end=dateEnd,
-                description=description
+                highlights=highlights
             )
             insert_patch.save()
 

@@ -42,10 +42,9 @@ class set(models.Model):
 class patch(models.Model):
     patch_id = models.IntegerField(primary_key=True)
     set_id = models.ForeignKey(set, on_delete=models.CASCADE)
-    revival_set_id = models.ForeignKey(set, on_delete=models.CASCADE, related_name='revival_set_id', blank=True, null=True)
     date_start = models.DateField()
     date_end = models.DateField(blank=True, null=True)
-    description = models.CharField(max_length=200)
+    highlights = models.CharField(max_length=200)
 
     def safe_get_patch_id(patch_id):
         try:
