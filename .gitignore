@@ -5,3 +5,4 @@ tft_django/tft_ml/pipeline/.ipynb_checkpoints
 tft_django/tft_ml/pipeline/database/database.ini
 tft_django/tft/migrations
 tft_django/tft_django/settings.py
+.env

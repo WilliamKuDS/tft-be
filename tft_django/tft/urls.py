@@ -61,7 +61,7 @@ urlpatterns = [
     path("patch/delete", patch_api.deletePatchByID, name="deletePatchById"),
     # ------------------------------------------
     # Player API Paths
-    path("playerid", player_api.readPlayerByID, name="readPlayerByID"),
+    path("playerid", player_api.readPlayerByPUUID, name="readPlayerByPUUID"),
     path("player", player_api.readPlayerByValues, name="readPlayerByValue"),
     path("player/create", player_api.createPlayer, name="createPlayer"),
     path("player/update", player_api.updatePlayer, name="updatePlayer"),

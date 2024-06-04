@@ -8,11 +8,15 @@ def createPlayer(request):
     data = service.createPlayer(body)
     return HttpResponse(data)
 
-
 def readPlayerByID(request):
     body = json.loads(request.body)
     data = service.readPlayerID(body)
     return HttpResponse(data)
+
+def readPlayerByPUUID(request):
+    puuid, region = request.headers["puuid"], request.headers["region"]
+    status_code = service.updateOrCreatePlayerByPUUID(puuid, region)
+    return HttpResponse(status=status_code)
 
 
 def readPlayerByValues(request):
