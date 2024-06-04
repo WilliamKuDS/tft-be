@@ -227,34 +227,39 @@ def insertGameTrait(data):
 
 def insertItem(data):
     try:
-        name = data['name']
-        display_name = data['display_name']
-        icon = data['icon']
-        recipe = data['recipe']
-        description = data['description']
-        setID = data['set_id']
-
-        itemObject = item.safe_get_name(name=name, set_id=setID)
+        item_id = data['item_id']
+        itemObject = item.safe_get_id(item_id=item_id)
         if itemObject is not None:
-            print("Item {} already exists in database".format(name))
-
+            print("Item {} already exists in database".format(item_id))
         else:
-            set_id = set.safe_get(set_id=setID)
+            name = data['name']
+            display_name = data['display_name']
+            icon = data['icon']
+            recipe = data['recipe']
+            description = data['description']
+            stats = data['stats']
+            tags = data['tags']
+            set_id = set.safe_get(set_id=float(data['set_id']))
+
             insert_item = item(
+                item_id=item_id,
                 name=name,
                 display_name=display_name,
                 icon=icon,
                 description=description,
+                stats=stats,
+                tags=tags,
                 set_id=set_id
             )
             insert_item.save()
             if recipe is not None:
                 for items in recipe:
-                    itemObject = item.safe_get_name(name=items, set_id=set_id)
+                    item_id = 'TFT_Item_{}'.format(''.join(e for e in items if e.isalnum()))
+                    itemObject = item.safe_get_id(item_id=item_id)
                     insert_item.recipe.add(itemObject)
 
     except ValueError as e:
-        print("Item {} input incorrect. Error: {}".format(itemName, e))
+        print("Item {} input incorrect. Error: {}".format(item_id, e))
 
 def insertUnit(data):
     try:

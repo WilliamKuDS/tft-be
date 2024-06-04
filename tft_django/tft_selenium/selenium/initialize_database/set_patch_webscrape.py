@@ -1,18 +1,14 @@
-import os
-import time
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "tft_django.settings")
-import django
-
-django.setup()
-
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from decimal import Decimal
 from datetime import datetime, timedelta
 import re
+
+import os
+import django
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "tft_django.settings")
+django.setup()
 
 from tft.misc import insertSet, insertPatch
 

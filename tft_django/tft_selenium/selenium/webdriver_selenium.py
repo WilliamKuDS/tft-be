@@ -7,16 +7,33 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 def initBrowser():
-    # options = webdriver.FirefoxOptions()
-    # options.add_argument("-headless")
-    # options.add_argument("start-maximized")
-    # browser = webdriver.Firefox(options=options)
+    options = webdriver.FirefoxOptions()
+    options.add_argument("-headless")
+    options.add_argument("start-maximized")
+    browser = webdriver.Firefox(options=options)
     # browser.maximize_window()
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless=new")
-    options.add_argument('--start-maximized')
-    browser = webdriver.Chrome(options=options)
+    #options = webdriver.ChromeOptions()
+    #options.add_argument("--headless=new")
+    #options.add_argument('--start-maximized')
+    #browser = webdriver.Chrome(options=options)
     return browser
+
+def load_headless_browser():
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--disable-extensions")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-images")
+    options.add_argument("--blink-settings=imagesEnabled=false")
+    options.add_argument("--disable-javascript")
+    options.add_argument("start-maximized")
+    options.add_argument("window-size=1920,1080")
+    options.add_argument("--disable-software-rasterizer")
+    options.add_argument("--disable-logging")
+    options.add_argument("--log-level=3")
+    return webdriver.Chrome(options=options)
 
 def scroll_down(browser):
     """A method for scrolling the page."""

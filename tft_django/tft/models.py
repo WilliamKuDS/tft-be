@@ -169,12 +169,14 @@ class trait(models.Model):
 
 
 class item(models.Model):
-    item_id = models.AutoField(primary_key=True)
+    item_id = models.CharField(primary_key=True, max_length=50, unique=True)
     name = models.CharField(max_length=100)
     display_name = models.CharField(max_length=100)
     recipe = models.ManyToManyField('self', blank=True)
-    description = models.CharField(max_length=1000)
-    icon = models.CharField(max_length=500, null=True, blank=True)
+    description = models.CharField(max_length=1000, null=True, blank=True)
+    icon = models.CharField(max_length=500)
+    stats = models.CharField(max_length=500)
+    tags = models.CharField(max_length=100)
     set_id = models.ForeignKey(set, on_delete=models.CASCADE)
 
     def safe_get_id(item_id):
