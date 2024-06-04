@@ -35,6 +35,8 @@ def extract_item_details(item_container, url, item_type):
         item_image_url = item_container.find_element(By.TAG_NAME, 'section').find_element(By.TAG_NAME, 'a').get_attribute('href')
         item_dict['icon'] = item_image_url
 
+        item_dict['url'] = url
+
         try:
             if item_type == 'component':
                 raise Exception(';(')

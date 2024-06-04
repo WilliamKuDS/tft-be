@@ -239,6 +239,7 @@ def insertItem(data):
             description = data['description']
             stats = data['stats']
             tags = data['tags']
+            url = data['url']
             set_id = set.safe_get(set_id=float(data['set_id']))
 
             insert_item = item(
@@ -249,6 +250,7 @@ def insertItem(data):
                 description=description,
                 stats=stats,
                 tags=tags,
+                url=url,
                 set_id=set_id
             )
             insert_item.save()

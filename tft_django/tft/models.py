@@ -3,29 +3,33 @@ from django.db.models import Count
 
 # Create your models here.
 class player(models.Model):
-    player_id = models.AutoField(primary_key=True)
-    player_name = models.CharField(max_length=200)
-    region = models.CharField(max_length=2)
-    player_rank = models.CharField(max_length=200)
-    player_lp = models.IntegerField()
-    icon = models.CharField(max_length=200)
+    puuid = models.CharField(primary_key=True, max_length=100)
     last_updated = models.DateField(null=True)
+    account_id = models.CharField(max_length=100)
+    summoner_id = models.CharField(max_length=100)
+    player_name = models.CharField(max_length=100)
+    region = models.CharField(max_length=2)
+    league_id = models.CharField(max_length=100)
+    tier = models.CharField(max_length=10)
+    rank = models.CharField(max_length=2)
+    league_points = models.IntegerField()
+    wins = models.IntegerField()
+    losses = models.IntegerField()
+    icon = models.CharField(max_length=200)
+    veteran = models.BooleanField()
+    inactive = models.BooleanField()
+    fresh_blood = models.BooleanField()
+    hot_streak = models.BooleanField()
 
-    def safe_get(player_name, region):
+    def safe_get_puuid(puuid):
         try:
-            return player.objects.get(player_name=player_name, region=region)
-        except player.DoesNotExist:
-            return None
-
-    def safe_get_id(player_id):
-        try:
-            return player.objects.get(player_id=player_id)
+            return player.objects.get(puuid=puuid)
         except player.DoesNotExist:
             return None
 
 class set(models.Model):
     set_id = models.FloatField(primary_key=True)
-    set_name = models.CharField(max_length=200)
+    set_name = models.CharField(max_length=25)
 
     def safe_get(set_id):
         try:
@@ -177,6 +181,7 @@ class item(models.Model):
     icon = models.CharField(max_length=500)
     stats = models.CharField(max_length=500)
     tags = models.CharField(max_length=100)
+    url = models.CharField(max_length=500)
     set_id = models.ForeignKey(set, on_delete=models.CASCADE)
 
     def safe_get_id(item_id):
