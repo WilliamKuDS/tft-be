@@ -62,7 +62,7 @@ urlpatterns = [
     # ------------------------------------------
     # Player API Paths
     path("playerid", player_api.readPlayerByPUUID, name="readPlayerByPUUID"),
-    path("player", player_api.readPlayerByValues, name="readPlayerByValue"),
+    path("player", player_api.readPlayerByName, name="readPlayerByName"),
     path("player/create", player_api.createPlayer, name="createPlayer"),
     path("player/update", player_api.updatePlayer, name="updatePlayer"),
     path("player/delete", player_api.deletePlayerByValues, name="deletePlayerByValue"),

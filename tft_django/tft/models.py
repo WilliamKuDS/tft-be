@@ -4,11 +4,26 @@ from django.db.models import Count
 # Create your models here.
 class player(models.Model):
     puuid = models.CharField(primary_key=True, max_length=100)
-    last_updated = models.DateTimeField()
-    account_id = models.CharField(max_length=100)
-    summoner_id = models.CharField(max_length=100)
     game_name = models.CharField(max_length=16)
     tag_line = models.CharField(max_length=5)
+    last_updated = models.DateTimeField(blank=True, null=True)
+
+    def safe_get_puuid(puuid):
+        try:
+            return player.objects.get(puuid=puuid)
+        except player.DoesNotExist:
+            return None
+
+    def safe_get_name_tag(game_name, tag_line):
+        try:
+            return player.objects.get(game_name=game_name, tag_line=tag_line)
+        except player.DoesNotExist:
+            return None
+
+class summoner(models.Model):
+    summoner_id = models.CharField(primary_key=True, max_length=100)
+    puuid = models.ForeignKey(player, on_delete=models.CASCADE)
+    account_id = models.CharField(max_length=100)
     region = models.CharField(max_length=4)
     icon = models.CharField(max_length=5)
     level = models.IntegerField()
@@ -23,15 +38,21 @@ class player(models.Model):
     fresh_blood = models.BooleanField()
     hot_streak = models.BooleanField()
 
-    def safe_get_puuid(puuid):
+    def safe_get_puuid_region(puuid, region):
         try:
-            return player.objects.get(puuid=puuid)
-        except player.DoesNotExist:
+            return summoner.objects.get(puuid=puuid, region=region)
+        except summoner.DoesNotExist:
+            return None
+
+    def safe_get_summoner_id(summoner_id):
+        try:
+            return summoner.objects.get(summoner_id=summoner_id)
+        except summoner.DoesNotExist:
             return None
 
 class set(models.Model):
     set_id = models.FloatField(primary_key=True)
-    set_name = models.CharField(max_length=25)
+    set_name = models.CharField(max_length=50)
 
     def safe_get(set_id):
         try:
@@ -70,46 +91,6 @@ class patch(models.Model):
             return patch.objects.get(set_name=revival_set_id)
         except patch.DoesNotExist:
             return None
-
-class game_info(models.Model):
-    game_id = models.CharField(max_length=200, primary_key=True)
-    queue = models.CharField(max_length=50)
-    lobby_rank = models.CharField(max_length=50)
-    patch_id = models.ForeignKey(patch, on_delete=models.CASCADE)
-    date = models.DateField()
-    player_id = models.ManyToManyField(player)
-
-    class Meta:
-        indexes = [
-            models.Index(fields=['queue'])
-        ]
-
-    def safe_get_game_id(game_id):
-        try:
-            return game_info.objects.get(game_id=game_id)
-        except game_info.DoesNotExist:
-            return None
-        except game_info.IntegrityError:
-            return None
-
-    def safe_get_player_id(player_id):
-        try:
-            return game_info.objects.filter(player_id=player_id)
-        except game_info.DoesNotExist:
-            return None
-
-    def safe_get_player_in_game_id(game_id, player_id):
-        try:
-            return game_info.objects.filter(game_id=game_id, player_id=player_id)
-        except game_info.DoesNotExist:
-            return None
-
-    def safe_add_player_id(player_id):
-        try:
-            return game_info.player_id.add(player_id=player_id)
-        except game_info.IntegrityError:
-            return None
-
 
 class augment(models.Model):
     augment_id = models.AutoField(primary_key=True)
@@ -223,6 +204,46 @@ class unit(models.Model):
             return unit.objects.get(name=name, set_id=set_id)
         except unit.DoesNotExist:
             return None
+
+class game_info(models.Model):
+    game_id = models.CharField(max_length=200, primary_key=True)
+    queue = models.CharField(max_length=50)
+    lobby_rank = models.CharField(max_length=50)
+    patch_id = models.ForeignKey(patch, on_delete=models.CASCADE)
+    date = models.DateField()
+    player_id = models.ManyToManyField(player)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['queue'])
+        ]
+
+    def safe_get_game_id(game_id):
+        try:
+            return game_info.objects.get(game_id=game_id)
+        except game_info.DoesNotExist:
+            return None
+        except game_info.IntegrityError:
+            return None
+
+    def safe_get_player_id(player_id):
+        try:
+            return game_info.objects.filter(player_id=player_id)
+        except game_info.DoesNotExist:
+            return None
+
+    def safe_get_player_in_game_id(game_id, player_id):
+        try:
+            return game_info.objects.filter(game_id=game_id, player_id=player_id)
+        except game_info.DoesNotExist:
+            return None
+
+    def safe_add_player_id(player_id):
+        try:
+            return game_info.player_id.add(player_id=player_id)
+        except game_info.IntegrityError:
+            return None
+
 
 class game_unit(models.Model):
     game_unit_id = models.AutoField(primary_key=True)

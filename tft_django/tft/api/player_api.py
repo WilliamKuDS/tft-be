@@ -19,9 +19,9 @@ def readPlayerByPUUID(request):
     return HttpResponse(status=status_code)
 
 
-def readPlayerByValues(request):
-    body = json.loads(request.body)
-    data = service.readPlayerValues(body)
+def readPlayerByName(request):
+    playerName = request.headers["playerName"]
+    data = service.readPlayerValues(playerName)
     return HttpResponse(data)
 
 

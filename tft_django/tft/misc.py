@@ -395,3 +395,25 @@ def insertGame(data):
         game_patch.game_unit_id.add(gameUnits)
 
     return game_patch
+
+def getServerCodeFromRegion(region):
+    regions_mapping = {
+        'na': 'na1',
+        'euw': 'euw1',
+        'eun': 'eun1',
+        'kr': 'kr',
+        'jp': 'jp1',
+        'oce': 'oc1',
+        'tw': 'tw2',
+        'ph': 'ph2',
+        'sg': 'sg2',
+        'th': 'th2',
+        'vn': 'vn2',
+        'br': 'br1',
+        'lan': 'la1',
+        'las': 'la2',
+        'ru': 'ru1',
+        'tr': 'tr1'
+    }
+    return regions_mapping.get(region)
+

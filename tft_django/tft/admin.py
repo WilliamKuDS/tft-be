@@ -1,10 +1,11 @@
 from django.contrib import admin
-from .models import player, patch, augment, trait, item, unit, game_unit, game_info, game, set, game_trait, synergy
+from .models import player, patch, augment, trait, item, unit, game_unit, game_info, game, set, game_trait, synergy, summoner
 
 # Register your models here.
 admin.site.register(player)
 admin.site.register(patch)
 admin.site.register(augment)
+admin.site.register(summoner)
 admin.site.register(trait)
 admin.site.register(item)
 admin.site.register(unit)
