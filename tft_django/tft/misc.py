@@ -3,80 +3,122 @@ import re
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count
-from django.db.utils import IntegrityError
+from django.utils import timezone
 
-from .models import patch, augment, trait, item, unit, game_unit, set, player, game_info, game, game_trait, synergy
+from tft.models import account, region, summoner, league, summoner_league
+from tft.models import set, patch, trait, trait_effect, unit, item, augment
 
-def insertPlayer(data):
+
+def insertAccount(data):
     try:
-        playerName = data['player_name']
-        region = data['region']
-        lastUpdated = data['last_updated']
-        icon = data['icon']
-        playerRank = data['player_rank']
-        playerLP = data['player_lp']
+        account_lookup_params = {'puuid': data['puuid']}
+        account_dict = {
+            'game_name': data['gameName'],
+            'tag_line': data['tagLine'],
+        }
 
-        playerObject = player.safe_get(player_name=playerName, region=region)
-
-        if playerObject is not None:
-            if playerObject.icon != icon and icon != "":
-                playerObject.icon = icon
-            if playerObject.player_rank != playerRank and playerRank != "":
-                playerObject.player_rank = playerRank
-            if playerObject.player_lp != playerLP:
-                playerObject.player_lp = playerLP
-            playerObject.save()
-            print("Player {} already exists in database".format(playerName))
-            return playerObject.pk
-
-        insert_player = player(
-            player_name=playerName,
-            region=region,
-            last_updated=lastUpdated,
-            icon=icon,
-            player_rank=playerRank,
-            player_lp=playerLP
+        account_obj, account_created = account.objects.update_or_create(
+            defaults=account_dict,
+            **account_lookup_params
         )
-        insert_player.save()
-        return insert_player.pk
-    except IntegrityError as e:
-        print("Player {} already exists in database. Error: {}".format(playerName, e))
-    except ValueError as e:
-        print("Player {} input incorrect. Error: {}".format(playerName, e))
 
+        return account_obj, account_created
 
-def insertGameInfo(data):
-    try:
-        gameID = data['game_id']
-        lobbyRank = data['lobby_rank']
-        queue = data['queue']
-        patchID = patch.objects.get(patch_id=data['patch_id'])
-        date = data['date']
-
-
-        gameObject = game_info.safe_get_game_id(game_id=gameID)
-
-        if gameObject is not None:
-            print("Game Info {} already exists in database, querying game first then adding player".format(gameID))
-            return gameObject
-        else:
-            insert_game_info = game_info(
-                game_id=gameID,
-                lobby_rank=lobbyRank,
-                queue=queue,
-                patch_id=patchID,
-                date=date
-            )
-            insert_game_info.save()
-            return insert_game_info
     except Exception as e:
-        print("GameID {} input incorrect. Error: {}".format(gameID, e))
+        raise Exception("Error inserting account {}. Error: {}".format(data['puuid'], e))
 
-def insertPlayerToGameInfo(data):
-    playerID = data['player_id']
-    gameInfoObject = data['game_info_object']
 
-    gameInfoObject.player_id.add(player.safe_get_id(player_id=playerID))
+def insertRegion(data):
+    try:
+        region_lookup_params = {'region_id': data['region_id']}
+        region_dict = {
+            'label': data['label'],
+            'server': data['server'],
+            'description': data['description'],
+        }
+
+        region_obj, region_created = region.objects.update_or_create(
+            defaults=region_dict,
+            **region_lookup_params
+        )
+
+        return region_obj, region_created
+
+    except Exception as e:
+        raise Exception("Error inserting region {}. Error: {}".format(data['region_id'], e))
+
+
+def insertSummoner(data):
+    try:
+        accountObject = account.safe_get_by_puuid(data['puuid'])
+        summoner_lookup_params = {'summoner_id': data['id'], 'region': data['region']}
+        summoner_dict = {
+            'puuid': accountObject,
+            'account_id': data['accountId'],
+            'icon': data['profileIconId'],
+            'level': data['summonerLevel'],
+            'last_updated': timezone.now(),
+        }
+        summoner_obj, summoner_created = summoner.objects.update_or_create(
+            defaults=summoner_dict,
+            **summoner_lookup_params
+        )
+
+        return summoner_obj, summoner_created
+
+    except Exception as e:
+        raise Exception("Error inserting summoner {}. Error: {}".format(data['id'], e))
+
+
+def insertLeague(data):
+    try:
+        league_lookup_params = {'league_id': data['leagueId'], 'region': data['region']}
+        league_dict = {
+            'tier': data['tier'],
+            'name': data['name'],
+            'queue': data['queue']
+        }
+        league_obj, league_created = league.objects.update_or_create(
+            defaults=league_dict,
+            **league_lookup_params
+        )
+
+        return league_obj, league_created
+
+    except Exception as e:
+        raise Exception("Error inserting league {}. Error: {}".format(data['leagueId'], e))
+
+
+def insertSummonerLeague(data):
+    try:
+        accountObject = account.safe_get_by_puuid(data['puuid'])
+        summonerObject = summoner.safe_get_by_summoner_id(data['summonerId'])
+        leagueObject = league.safe_get_by_league_id(data['leagueId'])
+        summoner_league_lookup_params = {'summoner_id': summonerObject.id, 'region': data['region'],
+                                         'queue': data['queueType']}
+        summoner_league_dict = {
+            'puuid': accountObject,
+            'league_id': leagueObject.id,
+            'tier': data['tier'],
+            'rank': data['rank'],
+            'league_points': data['leaguePoints'],
+            'wins': data['wins'],
+            'losses': data['losses'],
+            'veteran': data['veteran'],
+            'inactive': data['inactive'],
+            'fresh_blood': data['freshBlood'],
+            'hot_streak': data['hotStreak']
+        }
+        summoner_league_obj, summoner_league_created = summoner_league.objects.update_or_create(
+            defaults=summoner_league_dict,
+            **summoner_league_lookup_params
+        )
+
+        return summoner_league_obj, summoner_league_created
+
+    except Exception as e:
+        raise Exception("Error inserting SummonerLeague {}. Error: {}".format(data['summonerId'], e))
+
 
 def insertSet(data):
     try:
@@ -85,16 +127,14 @@ def insertSet(data):
         if setObject is not None:
             print("Set {} already exists in database".format(setID))
         else:
-            setName = data['set_name']
-
             insert_set = set(
                 set_id=setID,
-                set_name=setName
+                set_name=data['set_name']
             )
             insert_set.save()
 
     except ValueError as e:
-        print("Set {} input incorrect. Error: {}".format(setID, e))
+        raise Exception("Set {} input incorrect. Error: {}".format(setID, e))
 
 
 def insertPatch(data):
@@ -105,23 +145,72 @@ def insertPatch(data):
             print("Patch {} already exists in database".format(data['patch_id']))
         else:
             setID = set.objects.get(set_id=float(data['set_id']))
-            dateStart = data['date_start']
-            dateEnd = data['date_end']
-            highlights = data['highlights']
-            patch_url = data['patch_url']
-
             insert_patch = patch(
                 patch_id=patchID,
                 set_id=setID,
-                date_start=dateStart,
-                date_end=dateEnd,
-                highlights=highlights,
-                patch_url=patch_url
+                date_start=data['date_start'],
+                date_end=data['date_end'],
+                highlights=data['highlights'],
+                patch_url=data['patch_url']
             )
             insert_patch.save()
 
     except ValueError as e:
-        print("Patch {} input incorrect. Error: {}".format(data['patch_id'], e))
+        raise Exception("Patch {} input incorrect. Error: {}".format(data['patch_id'], e))
+
+
+def insertTrait(data):
+    try:
+        patch_id = patch.safe_get_patch_id(data['patch_id'])
+        if 'apiName' in data:
+            api_name = data['apiName']
+        else:
+            api_name = 'TFT' + str(int(patch_id.set_id.set_id)) + '_' + data['name']
+
+        traitObject = trait.safe_get_api_name_patch(api_name=api_name, patch_id=patch_id)
+        if traitObject is not None:
+            print("Trait {} already exists in database, skipping".format(api_name))
+            return traitObject
+        else:
+            insert_trait = trait(
+                api_name=api_name,
+                patch_id=patch_id,
+                display_name=data['name'],
+                description=data['desc'],
+                icon=data['icon'],
+            )
+            insert_trait.save()
+            return insert_trait
+
+    except Exception as e:
+        raise Exception("Trait {} input incorrect. Error: {}".format(data, e))
+
+def insertTraitEffects(data):
+    try:
+        trait_id = data['trait']
+        min_units = data['minUnits']
+        max_units = data['maxUnits']
+
+        traitEffectsObject = trait_effect.safe_get_trait_id_min_max(trait_id, min_units, max_units)
+        if traitEffectsObject is not None:
+            print("TraitEffect for {} [{}:{}] already exists in database, skipping".format(trait_id, min_units, max_units))
+        else:
+            if 'style' in data:
+                style = data['style']
+            else:
+                style = None
+
+            insert_trait_effect = trait_effect(
+                trait_id=trait_id,
+                style=style,
+                min_units=min_units,
+                max_units=max_units,
+                variables=data['variables'],
+            )
+            insert_trait_effect.save()
+
+    except Exception as e:
+        raise Exception("TraitEffect for {} [{}:{}] input incorrect. Error: {}".format(trait_id, min_units, max_units, e))
 
 
 def insertAugment(data):
@@ -150,80 +239,6 @@ def insertAugment(data):
             insert_patch.save()
     except Exception as e:
         print("Augment {} input incorrect. Error: {}".format(name, e))
-
-def insertTrait(data):
-    try:
-        name = data['name']
-        display_name = data['display_name']
-        description = data['description']
-        synergyList = data['synergy']
-        set_id = float(data['set_id'])
-        icon = data['icon']
-        
-        traitObject = trait.safe_get_name(name=name, set_id=set_id)
-        if traitObject is not None:
-            print("Trait {} already exists in database, skipping".format(name))
-        else:    
-            set_id = set.objects.get(set_id=float(data['set_id']))
-            insert_trait = trait(
-                name=name,
-                display_name=display_name,
-                description=description,
-                icon=icon,
-                set_id=set_id
-            )
-            insert_trait.save()
-            for synergys in synergyList:
-                temp = synergy.objects.get(synergy_id=synergys)
-                insert_trait.synergy.add(temp)
-                
-    except Exception as e:
-        print("Trait {} input incorrect. Error: {}".format(name, e))
-
-def insertSynergy(data):
-    try:
-        name = data['name']
-        count = data['count']
-        description = data['description']
-        set_id = float(data['set_id'])
-
-        synergyObject = synergy.safe_get_by_trait(name=name, count=count, set_id=set_id)
-        if synergyObject is not None:
-            print("Synergy {} of {} already exists in database, skipping.".format(name, count))
-            return synergyObject.pk
-        else:
-            set_id = set.objects.get(set_id=set_id)
-            insert_synergy = synergy(
-                name=name,
-                count=count,
-                description=description,
-                set_id=set_id
-            )
-            insert_synergy.save()
-            return insert_synergy.pk
-    except Exception as e:
-        print("Synergy input incorrect. Error: {}".format(e))
-
-
-def insertGameTrait(data):
-    try:
-        traitID = data['trait_id']
-        count = data['count']
-    except Exception as e:
-        print("Error in getting game data from parameter. Error: {}".format(e))
-        return False
-
-    if game_trait.objects.filter(trait_id=traitID, count=count).exists():
-        print("Trait {} with count {} already exists in database".format(traitID, count))
-        return game_trait.objects.get(trait_id=traitID, count=count)
-
-    game_trait_patch = game_trait(
-        trait_id=traitID,
-        count=count
-    )
-    game_trait_patch.save()
-    return game_trait_patch
-
 
 def insertItem(data):
     try:
@@ -262,6 +277,7 @@ def insertItem(data):
 
     except ValueError as e:
         print("Item {} input incorrect. Error: {}".format(item_id, e))
+
 
 def insertUnit(data):
     try:
@@ -302,118 +318,4 @@ def insertUnit(data):
                 unit_patch.trait.add(temp)
 
     except ValueError as e:
-        print("Unit {} input incorrect. Error: {}".format(unitName, e))
-
-def insertGameUnit(data):
-    try:
-        patchID = patch.objects.get(patch_id=float(data['patch_id']))
-        set_id = data['set_id']
-        unitID = unit.objects.get(unit_id=data['unit_id'], set_id=set_id)
-        star = data['star']
-        items = data['items']
-    except:
-        print("Game Unit data incorrect, Error")
-        return None
-
-    try:
-        existCheck = game_unit.objects.filter(unit_id=unitID, patch_id=patchID, star=star).annotate(count=Count('item')).filter(count=len(items))
-        for pk in items:
-            existCheck = existCheck.filter(item__pk=pk)
-    except:
-        print("Error in new filter loop insertGameUnit")
-        return None
-
-
-    if existCheck.exists():
-        print("Game Unit {} already exists in database, not creating a new game unit.".format(existCheck))
-        return existCheck[0].game_unit_id
-
-
-    game_unit_patch = game_unit(
-        unit_id=unitID,
-        patch_id=patchID,
-        star=star,
-    )
-    game_unit_patch.save()
-
-    for items in data['items']:
-        try:
-            temp = item.objects.get(item_id=items, set_id=set_id)
-            game_unit_patch.item.add(temp)
-        except ObjectDoesNotExist:
-            print("Item {} does not exist in database".format(items))
-
-    return game_unit_patch.pk
-
-def insertGame(data):
-    try:
-        gameID = game_info.objects.get(game_id=data['game_id'])
-        playerID = player.objects.get(player_id=data['player_id'])
-        length = data['length']
-        placement = data['placement']
-        level = data['level']
-        round = data['round']
-        augmentList = data['augments']
-        headliner = data['headliner']
-        traitsList = data['game_traits']
-        gameUnitsList = data['game_units']
-        icon = data['icon']
-
-    except Exception as e:
-        print("Error in getting game data from parameter. Error: {}".format(e))
-        return False
-
-    if game.objects.filter(game_id=gameID, player_id=playerID).exists():
-        print("Game {} for player {} already exists in database".format(gameID, playerID))
-        return None
-
-
-    game_patch = game(
-        game_id=gameID,
-        player_id=playerID,
-        length=length,
-        placement=placement,
-        level=level,
-        round=round,
-        icon=icon,
-    )
-
-    if headliner is not None:
-        game_patch.headliner_id = trait.objects.get(trait_id=headliner)
-
-    game_patch.save()
-
-    # Get Augments and Insert to Game
-    for augments in augmentList:
-        game_patch.augment_id.add(augments)
-
-    if traitsList is not None:
-        for traits in traitsList:
-            game_patch.game_trait_id.add(traits)
-
-    for gameUnits in gameUnitsList:
-        game_patch.game_unit_id.add(gameUnits)
-
-    return game_patch
-
-def getServerCodeFromRegion(region):
-    regions_mapping = {
-        'na': 'na1',
-        'euw': 'euw1',
-        'eun': 'eun1',
-        'kr': 'kr',
-        'jp': 'jp1',
-        'oce': 'oc1',
-        'tw': 'tw2',
-        'ph': 'ph2',
-        'sg': 'sg2',
-        'th': 'th2',
-        'vn': 'vn2',
-        'br': 'br1',
-        'lan': 'la1',
-        'las': 'la2',
-        'ru': 'ru1',
-        'tr': 'tr1'
-    }
-    return regions_mapping.get(region)
-
+        print("Unit {} input incorrect. Error: {}".format(name, e))

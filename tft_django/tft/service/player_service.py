@@ -1,13 +1,13 @@
-from tft.models import player, summoner
-from tft.misc import getServerCodeFromRegion
+from tft.models import account, summoner, region, summoner_league
+from tft.misc import insertAccount, insertSummoner, insertSummonerLeague, insertLeague
+
 from django.forms.models import model_to_dict
+
 from json import dumps
 import requests
 import os
 from dotenv import load_dotenv, find_dotenv
-
 from datetime import datetime
-from django.utils import timezone
 
 
 def createPlayer(data):
@@ -15,12 +15,12 @@ def createPlayer(data):
     region = data['player_region'].lower()
     lastUpdated = datetime.today()
 
-    playerID = player.safe_get(player_name=playerName, region=region)
+    playerID = account.safe_get(player_name=playerName, region=region)
 
     if playerID is not None:
         print("Player {} already exists in database".format(playerName))
     else:
-        insert_player = player(
+        insert_player = account(
             player_name=playerName,
             region=region,
             last_updated=lastUpdated
@@ -28,75 +28,11 @@ def createPlayer(data):
         insert_player.save()
         return insert_player.pk
 
-def updateOrCreatePlayerByPUUID(puuid, region):
-    try:
-        load_dotenv(find_dotenv())
-
-        # Gets player information from PUUID and saves it to database as player model
-        account_response = requests.get(
-            "https://americas.api.riotgames.com/riot/account/v1/accounts/by-puuid/{}".format(puuid),
-            headers={"X-Riot-Token": os.environ["TFT_RIOT_API_KEY"]},
-        )
-        json_account_response = account_response.json()
-
-        player_lookup_params = {'puuid': puuid}
-        player_dict = {
-            'game_name': json_account_response['gameName'],
-            'tag_line': json_account_response['tagLine'],
-            'last_updated': timezone.now(),
-        }
-
-        player_obj, player_created = player.objects.update_or_create(
-            defaults=player_dict,
-            **player_lookup_params
-        )
-
-        # Gets summoner information from puuid and region and saves it to database as summoner model
-        server_code = getServerCodeFromRegion(region)
-        summoner_response = requests.get(
-            "https://{}.api.riotgames.com/tft/summoner/v1/summoners/by-puuid/{}".format(server_code, puuid),
-            headers={"X-Riot-Token": os.environ["TFT_RIOT_API_KEY"]},
-        )
-        json_summoner_response = summoner_response.json()
-        summoner_id = json_summoner_response['id']
-
-        league_response = requests.get(
-            "https://{}.api.riotgames.com/tft/league/v1/entries/by-summoner/{}".format(server_code, summoner_id),
-            headers={"X-Riot-Token": os.environ["TFT_RIOT_API_KEY"]},
-        )
-        json_league_response = league_response.json()[0]
-
-        summoner_lookup_params = {'summoner_id': summoner_id}
-        summoner_dict = {
-            'account_id': json_summoner_response['accountId'],
-            'puuid': player_obj,
-            'region': region,
-            'icon': json_summoner_response['profileIconId'],
-            'level': json_summoner_response['summonerLevel'],
-            'league_id': json_league_response['leagueId'],
-            'tier': json_league_response['tier'],
-            'rank': json_league_response['rank'],
-            'league_points': json_league_response['leaguePoints'],
-            'wins': json_league_response['wins'],
-            'losses': json_league_response['losses'],
-            'veteran': json_league_response['veteran'],
-            'inactive': json_league_response['inactive'],
-            'fresh_blood': json_league_response['freshBlood'],
-            'hot_streak': json_league_response['hotStreak']
-        }
-        summoner_obj, summoner_created = summoner.objects.update_or_create(
-            defaults=summoner_dict,
-            **summoner_lookup_params
-        )
-        return 200
-    except Exception as e:
-        print("Failed to update or create player for {}: {}".format(puuid, e))
-        return 500
 
 def readPlayerID(data):
     playerID = data['player_id']
 
-    playerObject = player.safe_get_id(player_id=playerID)
+    playerObject = account.safe_get_id(player_id=playerID)
 
     if playerObject is None:
         print("Player {} does not exist in database".format(playerID))
@@ -108,19 +44,30 @@ def readPlayerID(data):
 
 
 def readPlayerValues(playerName):
-    game_name, tag_line, region = playerName.split('-')
-    playerObject = player.safe_get_name_tag(game_name=game_name, tag_line=tag_line)
-    if playerObject is None:
-        print("Player {} does not exist in database".format(playerName))
+    try:
+        game_name, tag_line, region_id = playerName.split('-')
 
-    summonerObject = summoner.safe_get_puuid_region(playerObject.puuid, region)
-    if summonerObject is None:
-        print("Summoner {} does not exist in database".format(playerName))
-    else:
-        dictObject = model_to_dict(summonerObject)
+        accountObject = account.safe_get_by_name_tag(game_name=game_name, tag_line=tag_line)
+        if accountObject is None:
+            raise Exception("Player does not exist in database for {}".format(playerName))
+
+        regionObject = region.safe_get_by_region_id(region_id)
+        summonerObject = summoner.safe_get_by_puuid_region(accountObject, regionObject)
+        if summonerObject is None:
+            raise Exception("Summoner does not exist in database for {}".format(playerName))
+
+        summonerLeagueObject = summoner_league.safe_get_by_summoner_id_and_region(summonerObject, regionObject)
+        if summonerLeagueObject is None:
+            raise Exception("SummonerLeague does not exist in database for {}".format(playerName))
+
+        summonerDictObject = model_to_dict(summonerObject)
+        summonerLeagueDictObject = model_to_dict(summonerLeagueObject)
+        dictObject = {**summonerDictObject, **summonerLeagueDictObject}
         jsonData = dumps(dictObject, indent=4, sort_keys=True, default=str)
-        return jsonData
 
+        return jsonData
+    except Exception as e:
+        raise Exception("Server error in reading player {}: {}".format(playerName, e))
 
 def updatePlayer(data):
     playerID = data['player_id']
@@ -128,7 +75,7 @@ def updatePlayer(data):
     region = data['player_region'].lower()
     lastUpdated = data['last_updated']
 
-    playerObject = player.safe_get_id(player_id=playerID)
+    playerObject = account.safe_get_id(player_id=playerID)
 
     if playerObject is None:
         print("Player {} doesn't exist in database".format(playerName))
@@ -147,7 +94,7 @@ def updatePlayer(data):
 def deletePlayerID(data):
     playerID = data['player_id']
 
-    playerObject = player.safe_get_id(player_id=playerID)
+    playerObject = account.safe_get_id(player_id=playerID)
     if playerObject is None:
         print("Player {} doesn't exist in database, can't delete".format(playerID))
     else:
@@ -158,8 +105,58 @@ def deletePlayerValues(data):
     playerName = data['player_name']
     region = data['player_region'].lower()
 
-    playerObject = player.safe_get(player_name=playerName, region=region)
+    playerObject = account.safe_get(player_name=playerName, region=region)
     if playerObject is None:
         print("Player {} doesn't exist in database, can't delete".format(playerName))
     else:
         playerObject.delete()
+
+
+def updateOrCreatePlayerByPUUID(puuid, region_id):
+    try:
+        load_dotenv(find_dotenv())
+
+        # Gets player information from PUUID and saves it to database as player model
+        account_response = requests.get(
+            "https://americas.api.riotgames.com/riot/account/v1/accounts/by-puuid/{}".format(puuid),
+            headers={"X-Riot-Token": os.environ["TFT_RIOT_API_KEY"]},
+        )
+        json_account_response = account_response.json()
+        insertAccount(json_account_response)
+
+        # Gets summoner information from puuid and region and saves it to database as summoner model
+        regionObject = region.safe_get_by_region_id(region_id)
+        server_code = regionObject.server
+
+        summoner_response = requests.get(
+            "https://{}.api.riotgames.com/tft/summoner/v1/summoners/by-puuid/{}".format(server_code, puuid),
+            headers={"X-Riot-Token": os.environ["TFT_RIOT_API_KEY"]},
+        )
+        json_summoner_response = summoner_response.json()
+        json_summoner_response['region'] = regionObject
+        insertSummoner(json_summoner_response)
+
+        summoner_id = json_summoner_response['id']
+        summoner_league_response = requests.get(
+            "https://{}.api.riotgames.com/tft/league/v1/entries/by-summoner/{}".format(server_code, summoner_id),
+            headers={"X-Riot-Token": os.environ["TFT_RIOT_API_KEY"]},
+        )
+        json_summoner_league_response = summoner_league_response.json()
+        if json_summoner_league_response:
+            for summoner_league in json_summoner_league_response:
+                league_id = summoner_league['leagueId']
+                league_response = requests.get(
+                    "https://{}.api.riotgames.com/tft/league/v1/leagues/{}".format(server_code, league_id),
+                    headers={"X-Riot-Token": os.environ["TFT_RIOT_API_KEY"]},
+                )
+                json_league_response = league_response.json()
+                json_league_response['region'] = regionObject
+                insertLeague(json_league_response)
+
+                summoner_league['region'] = regionObject
+                insertSummonerLeague(summoner_league)
+
+        return 200
+    except Exception as e:
+        print("Failed to update or create player for {}: {}".format(puuid, e))
+        return 500
