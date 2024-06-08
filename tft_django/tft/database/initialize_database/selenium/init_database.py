@@ -4,8 +4,8 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "tft_django.settings")
 django.setup()
 
 from tft.misc import insertRegion
-from tft_selenium.selenium.webdriver_selenium import load_headless_browser
-from tft.selenium.initialize_database.set_patch_webscrape import webscrape_set_data,iterate_thru_patches_urls_from_set_ids
+from tft.database.selenium.webdriver_selenium import load_headless_browser
+from tft.database.initialize_database.selenium.set_patch_webscrape import webscrape_set_data,iterate_thru_patches_urls_from_set_ids
 
 regions = [
     {"label": "NA", "region_id": "na", "server": "na1", "description": "North America"},

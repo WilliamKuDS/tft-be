@@ -47,9 +47,9 @@ for patch in patch_list:
         else:
             mutator_ids = ['TFTSet' + str(set_id) + '_Stage2', 'TFT_Set' + str(set_id) + '_Stage2', 'TFTSet' + str(set_id) + '_Act2']
 
-        try:
+        if 'setData' in tft_patch_data_json:
             champions_and_traits_data = next((item for item in tft_patch_data_json['setData'] if item.get('mutator') in mutator_ids), None)
-        except Exception as e:
+        else:
             champions_and_traits_data = tft_patch_data_json['sets'][str(set_id)]
 
         champion_data = champions_and_traits_data['champions']
@@ -60,11 +60,6 @@ for patch in patch_list:
         augments_and_items_data = tft_patch_data_json['items']
         [read_item_or_augment_and_add_to_database(data, patch_id) for data in augments_and_items_data]
 
-        print('{} successful'.format(url_patch_id))
-
     except Exception as e:
         print('{} failed. Error: {}'.format(url_patch_id, e))
         print(traceback.format_exc())
-
-
-

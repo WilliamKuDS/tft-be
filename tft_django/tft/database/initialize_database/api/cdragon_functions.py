@@ -16,11 +16,19 @@ def read_trait_and_add_to_database(trait, patch_id):
 def read_item_or_augment_and_add_to_database(data, patch_id):
     try:
         data['patch_id'] = patch_id
-        if "Item" in data.get('apiName'):
-            insertItem(data)
-        elif "Augment" in data.get('apiName'):
-            insertAugment(data)
+        if 'apiName' in data:
+            if "Item" in data.get('apiName'):
+                insertItem(data)
+            elif "Augment" in data.get('apiName'):
+                insertAugment(data)
+            else:
+                insertMisc(data)
         else:
-            insertMisc(data)
+            if "Item" in data.get('icon'):
+                insertItem(data)
+            elif "Augment" in data.get('icon'):
+                insertAugment(data)
+            else:
+                insertMisc(data)
     except Exception as e:
         raise Exception('Error adding data {} to database: {}'.format(data, e))

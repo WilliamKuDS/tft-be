@@ -1,5 +1,8 @@
 from django.db import models
 
+import tft
+
+
 # Player Account
 class account(models.Model):
     puuid = models.CharField(primary_key=True, max_length=100)
@@ -26,6 +29,7 @@ class account(models.Model):
         except account.DoesNotExist:
             return None
 
+
 class region(models.Model):
     region_id = models.CharField(primary_key=True, max_length=3)
     label = models.CharField(max_length=4)
@@ -37,6 +41,7 @@ class region(models.Model):
             return region.objects.get(region_id=region_id)
         except region.DoesNotExist:
             return None
+
 
 # Player Account(Summoner) based on region
 class summoner(models.Model):
@@ -70,6 +75,7 @@ class summoner(models.Model):
         except summoner.DoesNotExist:
             return None
 
+
 # Ranked league based on region
 class league(models.Model):
     id = models.AutoField(primary_key=True)
@@ -93,6 +99,7 @@ class league(models.Model):
             return league.objects.get(league_id=league_id)
         except league.DoesNotExist:
             return None
+
 
 # Ranked profile for summoner
 class summoner_league(models.Model):
@@ -127,6 +134,7 @@ class summoner_league(models.Model):
         except summoner_league.DoesNotExist:
             return None
 
+
 class set(models.Model):
     set_id = models.FloatField(primary_key=True)
     set_name = models.CharField(max_length=50)
@@ -142,6 +150,7 @@ class set(models.Model):
             return set.objects.get(set_name=set_name)
         except set.DoesNotExist:
             return None
+
 
 class patch(models.Model):
     patch_id = models.CharField(primary_key=True, max_length=10)
@@ -168,6 +177,7 @@ class patch(models.Model):
             return patch.objects.get(set_name=revival_set_id)
         except patch.DoesNotExist:
             return None
+
 
 class trait(models.Model):
     id = models.AutoField(primary_key=True)
@@ -206,6 +216,7 @@ class trait(models.Model):
         except trait.DoesNotExist:
             return None
 
+
 class trait_effect(models.Model):
     id = models.AutoField(primary_key=True)
     trait_id = models.ForeignKey(trait, on_delete=models.CASCADE)
@@ -226,6 +237,7 @@ class trait_effect(models.Model):
             return trait_effect.objects.get(trait_id=trait_id, min_units=min_units, max_units=max_units)
         except trait_effect.DoesNotExist:
             return None
+
 
 class champion(models.Model):
     id = models.AutoField(primary_key=True)
@@ -268,6 +280,7 @@ class champion(models.Model):
     def __str__(self):
         return f'{self.api_name} - {self.patch_id}'
 
+
 class champion_ability(models.Model):
     id = models.AutoField(primary_key=True)
     champion_id = models.ForeignKey(champion, on_delete=models.CASCADE)
@@ -275,6 +288,7 @@ class champion_ability(models.Model):
     icon = models.CharField(max_length=500, null=True)
     description = models.TextField(null=True)
     variables = models.JSONField()
+
 
 class champion_stats(models.Model):
     id = models.AutoField(primary_key=True)
@@ -290,18 +304,19 @@ class champion_stats(models.Model):
     magic_resist = models.IntegerField(null=True)
     range = models.IntegerField(null=True)
 
+
 class item(models.Model):
     id = models.AutoField(primary_key=True)
     api_name = models.CharField(max_length=255)
     patch_id = models.ForeignKey(patch, on_delete=models.CASCADE)
-    description = models.TextField()
+    display_name = models.CharField(max_length=255, null=True)
+    description = models.TextField(null=True)
     icon = models.TextField()
-    name = models.CharField(max_length=255)
-    unique = models.BooleanField()
-    effects = models.JSONField()
-    incompatible_traits = models.JSONField()
-    associated_traits = models.JSONField()
-    composition = models.JSONField()
+    unique = models.BooleanField(null=True)
+    effects = models.JSONField(null=True)
+    associated_traits = models.JSONField(null=True)
+    incompatible_traits = models.JSONField(null=True)
+    composition = models.JSONField(null=True)
 
     class Meta:
         unique_together = (('api_name', 'patch_id'),)
@@ -319,14 +334,14 @@ class augment(models.Model):
     id = models.AutoField(primary_key=True)
     api_name = models.CharField(max_length=255)
     patch_id = models.ForeignKey(patch, on_delete=models.CASCADE)
-    description = models.TextField()
+    display_name = models.CharField(max_length=255, null=True)
+    description = models.TextField(null=True)
     icon = models.TextField()
-    name = models.CharField(max_length=255)
-    unique = models.BooleanField()
-    effects = models.JSONField()
-    incompatible_traits = models.JSONField()
-    associated_traits = models.JSONField()
-    composition = models.JSONField()
+    unique = models.BooleanField(null=True)
+    effects = models.JSONField(null=True)
+    associated_traits = models.JSONField(null=True)
+    incompatible_traits = models.JSONField(null=True)
+    composition = models.JSONField(null=True)
 
     class Meta:
         unique_together = (('api_name', 'patch_id'),)
@@ -338,19 +353,20 @@ class augment(models.Model):
 
     def __str__(self):
         return f'{self.api_name} - {self.patch_id}'
+
 
 class miscellaneous(models.Model):
     id = models.AutoField(primary_key=True)
     api_name = models.CharField(max_length=255)
     patch_id = models.ForeignKey(patch, on_delete=models.CASCADE)
-    description = models.TextField()
+    display_name = models.CharField(max_length=255, null=True)
+    description = models.TextField(null=True)
     icon = models.TextField()
-    name = models.CharField(max_length=255)
-    unique = models.BooleanField()
-    effects = models.JSONField()
-    incompatible_traits = models.JSONField()
-    associated_traits = models.JSONField()
-    composition = models.JSONField()
+    unique = models.BooleanField(null=True)
+    effects = models.JSONField(null=True)
+    associated_traits = models.JSONField(null=True)
+    incompatible_traits = models.JSONField(null=True)
+    composition = models.JSONField(null=True)
 
     class Meta:
         unique_together = (('api_name', 'patch_id'),)
@@ -362,6 +378,34 @@ class miscellaneous(models.Model):
 
     def __str__(self):
         return f'{self.api_name} - {self.patch_id}'
+
+class match(models.Model):
+    match_id = models.CharField(max_length=15, primary_key=True)
+    data_version = models.CharField(max_length=10)
+    game_creation = models.DateTimeField()
+    game_datetime = models.DateTimeField()
+    game_length = models.FloatField()
+    game_version = models.CharField(max_length=255)
+    map_id = models.IntegerField()
+    queue_id = models.IntegerField()
+    game_type = models.CharField(max_length=50)
+    set_core_name = models.CharField(max_length=50)
+    set = models.ForeignKey(set, on_delete=models.CASCADE)
+
+class match_summoner(models.Model):
+    id = models.AutoField(primary_key=True)
+    match = models.ForeignKey(match, on_delete=models.CASCADE)
+    player = models.ForeignKey(account, on_delete=models.CASCADE)
+    placement = models.IntegerField()
+    gold_left = models.IntegerField()
+    last_round = models.IntegerField()
+    level = models.IntegerField()
+    players_eliminated = models.IntegerField()
+    time_eliminated = models.FloatField()
+    total_damage_to_players = models.IntegerField()
+    augments = models.JSONField()
+    traits = models.JSONField()
+    units = models.JSONField()
 
 # class game_info(models.Model):
 #     game_id = models.CharField(max_length=200, primary_key=True)
@@ -472,21 +516,17 @@ class miscellaneous(models.Model):
 #             return None
 
 
-    # def serialize(self):
-    #     return {
-    #         "Name": self.playerName,
-    #         "GameID": self.gameID,
-    #         "Queue": self.queue,
-    #         "Placement": self.placement,
-    #         "Level": self.level,
-    #         "Length": self.length,
-    #         "Round": self.round,
-    #         "Augments": self.augments,
-    #         "Headliner": self.headliner,
-    #         "Traits": self.traits,
-    #         "Units": self.units
-    #     }
-
-
-
-
+# def serialize(self):
+#     return {
+#         "Name": self.playerName,
+#         "GameID": self.gameID,
+#         "Queue": self.queue,
+#         "Placement": self.placement,
+#         "Level": self.level,
+#         "Length": self.length,
+#         "Round": self.round,
+#         "Augments": self.augments,
+#         "Headliner": self.headliner,
+#         "Traits": self.traits,
+#         "Units": self.units
+#     }
