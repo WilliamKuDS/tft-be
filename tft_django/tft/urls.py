@@ -1,7 +1,7 @@
 from django.urls import path
 
 from . import views
-from tft.api import augment_api, gameInfo_api, game_api, item_api, patch_api, player_api, set_api, trait_api, unit_api, \
+from tft.api import augment_api, gameInfo_api, game_api, item_api, patch_api, player_api, set_api, trait_api, champion_api, \
     gameTrait_api, gameUnit_api
 
 urlpatterns = [
@@ -84,11 +84,11 @@ urlpatterns = [
     path("traitid/delete", trait_api.deleteTraitByID, name="deleteTraitByID"),
     # ------------------------------------------
     # Unit API Paths
-    path("unit", unit_api.readUnitByName, name="readUnitByName"),
-    path("unitid", unit_api.readUnitByID, name="readUnitByID"),
-    path("unit/all", unit_api.readUnitAll, name="readUnitAll"),
-    path("unit/create", unit_api.createUnit, name="createUnit"),
-    path("unit/update", unit_api.updateUnit, name="updateUnit"),
-    path("unit/delete", unit_api.deleteUnitByName, name="deleteUnitByName"),
-    path("unitid/delete", unit_api.deleteUnitByID, name="deleteUnitByID"),
+    path("unit", champion_api.readUnitByName, name="readUnitByName"),
+    path("unitid", champion_api.readUnitByID, name="readUnitByID"),
+    path("unit/all", champion_api.readUnitAll, name="readUnitAll"),
+    path("unit/create", champion_api.createUnit, name="createUnit"),
+    path("unit/update", champion_api.updateUnit, name="updateUnit"),
+    path("unit/delete", champion_api.deleteUnitByName, name="deleteUnitByName"),
+    path("unitid/delete", champion_api.deleteUnitByID, name="deleteUnitByID"),
 ]

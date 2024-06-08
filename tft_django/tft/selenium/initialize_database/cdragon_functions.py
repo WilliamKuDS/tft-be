@@ -1,0 +1,26 @@
+from tft.misc import insertChampion, insertTrait, insertItem, insertAugment, insertMisc
+def read_champion_and_add_to_database(champion, patch_id):
+    try:
+        champion['patch_id'] = patch_id
+        insertChampion(champion)
+    except Exception as e:
+        raise Exception('Error adding champion to database: {}'.format(e))
+
+def read_trait_and_add_to_database(trait, patch_id):
+    try:
+        trait['patch_id'] = patch_id
+        insertTrait(trait)
+    except Exception as e:
+        raise Exception('Error adding trait {} to database: {}'.format(trait, e))
+
+def read_item_or_augment_and_add_to_database(data, patch_id):
+    try:
+        data['patch_id'] = patch_id
+        if "Item" in data.get('apiName'):
+            insertItem(data)
+        elif "Augment" in data.get('apiName'):
+            insertAugment(data)
+        else:
+            insertMisc(data)
+    except Exception as e:
+        raise Exception('Error adding data {} to database: {}'.format(data, e))

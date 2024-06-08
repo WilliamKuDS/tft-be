@@ -200,9 +200,9 @@ class trait(models.Model):
         except trait.DoesNotExist:
             return None
 
-    def safe_get_name_patch(name, patch_id):
+    def safe_get_name_patch(display_name, patch_id):
         try:
-            return trait.objects.get(name=name, patch_id=patch_id)
+            return trait.objects.get(display_name=display_name, patch_id=patch_id)
         except trait.DoesNotExist:
             return None
 
@@ -227,36 +227,86 @@ class trait_effect(models.Model):
         except trait_effect.DoesNotExist:
             return None
 
-class unit(models.Model):
+class champion(models.Model):
     id = models.AutoField(primary_key=True)
     api_name = models.CharField(max_length=255)
-    patch_id = models.IntegerField()
+    patch_id = models.ForeignKey(patch, on_delete=models.CASCADE)
+    character_name = models.CharField(max_length=255, null=True)
+    display_name = models.CharField(max_length=100)
+    cost = models.IntegerField()
+    icon = models.CharField(max_length=500, null=True)
+    square_icon = models.CharField(max_length=500, null=True)
+    tile_icon = models.CharField(max_length=500, null=True)
+    trait = models.ManyToManyField(trait)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['api_name', 'patch_id'], name='unit_unique_name_patch')
-        ]
+        unique_together = (('api_name', 'patch_id'),)
         indexes = [
-            models.Index(fields=['api_name', 'patch_id']),  # Composite index
+            models.Index(fields=['api_name', 'patch_id']),
             models.Index(fields=['api_name']),
             models.Index(fields=['patch_id']),
         ]
 
+    def safe_get_id(id):
+        try:
+            return champion.objects.get(id=id)
+        except champion.DoesNotExist:
+            return None
+
+    def safe_get_api_name_patch(api_name, patch_id):
+        try:
+            return champion.objects.get(api_name=api_name, patch_id=patch_id)
+        except champion.DoesNotExist:
+            return None
+
+    def safe_get_name_patch(display_name, patch_id):
+        try:
+            return champion.objects.get(display_name=display_name, patch_id=patch_id)
+        except champion.DoesNotExist:
+            return None
+
     def __str__(self):
         return f'{self.api_name} - {self.patch_id}'
 
+class champion_ability(models.Model):
+    id = models.AutoField(primary_key=True)
+    champion_id = models.ForeignKey(champion, on_delete=models.CASCADE)
+    name = models.CharField(max_length=50, null=True)
+    icon = models.CharField(max_length=500, null=True)
+    description = models.TextField(null=True)
+    variables = models.JSONField()
+
+class champion_stats(models.Model):
+    id = models.AutoField(primary_key=True)
+    champion_id = models.ForeignKey(champion, on_delete=models.CASCADE)
+    armor = models.IntegerField(null=True)
+    attack_speed = models.FloatField(null=True)
+    crit_chance = models.FloatField(null=True)
+    crit_multiplier = models.FloatField(null=True)
+    damage = models.IntegerField(null=True)
+    hp = models.IntegerField(null=True)
+    initial_mana = models.IntegerField(null=True)
+    mana = models.IntegerField(null=True)
+    magic_resist = models.IntegerField(null=True)
+    range = models.IntegerField(null=True)
 
 class item(models.Model):
     id = models.AutoField(primary_key=True)
     api_name = models.CharField(max_length=255)
-    patch_id = models.IntegerField()
+    patch_id = models.ForeignKey(patch, on_delete=models.CASCADE)
+    description = models.TextField()
+    icon = models.TextField()
+    name = models.CharField(max_length=255)
+    unique = models.BooleanField()
+    effects = models.JSONField()
+    incompatible_traits = models.JSONField()
+    associated_traits = models.JSONField()
+    composition = models.JSONField()
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['api_name', 'patch_id'], name='item_unique_name_patch')
-        ]
+        unique_together = (('api_name', 'patch_id'),)
         indexes = [
-            models.Index(fields=['api_name', 'patch_id']),  # Composite index
+            models.Index(fields=['api_name', 'patch_id']),
             models.Index(fields=['api_name']),
             models.Index(fields=['patch_id']),
         ]
@@ -268,14 +318,20 @@ class item(models.Model):
 class augment(models.Model):
     id = models.AutoField(primary_key=True)
     api_name = models.CharField(max_length=255)
-    patch_id = models.IntegerField()
+    patch_id = models.ForeignKey(patch, on_delete=models.CASCADE)
+    description = models.TextField()
+    icon = models.TextField()
+    name = models.CharField(max_length=255)
+    unique = models.BooleanField()
+    effects = models.JSONField()
+    incompatible_traits = models.JSONField()
+    associated_traits = models.JSONField()
+    composition = models.JSONField()
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['api_name', 'patch_id'], name='augment_unique_name_patch')
-        ]
+        unique_together = (('api_name', 'patch_id'),)
         indexes = [
-            models.Index(fields=['api_name', 'patch_id']),  # Composite index
+            models.Index(fields=['api_name', 'patch_id']),
             models.Index(fields=['api_name']),
             models.Index(fields=['patch_id']),
         ]
@@ -283,76 +339,29 @@ class augment(models.Model):
     def __str__(self):
         return f'{self.api_name} - {self.patch_id}'
 
-# class augment(models.Model):
-#     augment_id = models.AutoField(primary_key=True)
-#     name = models.CharField(max_length=100)
-#     display_name = models.CharField(max_length=100)
-#     tier = models.IntegerField()
-#     description = models.CharField(max_length=2000)
-#     icon = models.CharField(max_length=500, null=True, blank=True)
-#     set_id = models.ForeignKey(set, on_delete=models.CASCADE)
-#
-#     def safe_get_id(augment_id):
-#         try:
-#             return augment.objects.get(augment_id=augment_id)
-#         except augment.DoesNotExist:
-#             return None
-#
-#     def safe_get_name(name, set_id):
-#         try:
-#             return augment.objects.get(name=name, set_id=set_id)
-#         except augment.DoesNotExist:
-#             return None
+class miscellaneous(models.Model):
+    id = models.AutoField(primary_key=True)
+    api_name = models.CharField(max_length=255)
+    patch_id = models.ForeignKey(patch, on_delete=models.CASCADE)
+    description = models.TextField()
+    icon = models.TextField()
+    name = models.CharField(max_length=255)
+    unique = models.BooleanField()
+    effects = models.JSONField()
+    incompatible_traits = models.JSONField()
+    associated_traits = models.JSONField()
+    composition = models.JSONField()
 
-# class item(models.Model):
-#     item_id = models.CharField(primary_key=True, max_length=50, unique=True)
-#     name = models.CharField(max_length=100)
-#     display_name = models.CharField(max_length=100)
-#     recipe = models.ManyToManyField('self', blank=True)
-#     description = models.CharField(max_length=1000, null=True, blank=True)
-#     icon = models.CharField(max_length=500)
-#     stats = models.CharField(max_length=500)
-#     tags = models.CharField(max_length=100)
-#     url = models.CharField(max_length=500)
-#     set_id = models.ForeignKey(set, on_delete=models.CASCADE)
-#
-#     def safe_get_id(item_id):
-#         try:
-#             return item.objects.get(item_id=item_id)
-#         except item.DoesNotExist:
-#             return None
-#
-#     def safe_get_name(name, set_id):
-#         try:
-#             return item.objects.get(name=name, set_id=set_id)
-#         except item.DoesNotExist:
-#             return None
-#
-# class unit(models.Model):
-#     unit_id = models.AutoField(primary_key=True)
-#     name = models.CharField(max_length=100)
-#     display_name = models.CharField(max_length=100)
-#     tier = models.IntegerField()
-#     trait = models.ManyToManyField(trait)
-#     ability_name = models.CharField(max_length=200)
-#     ability_description = models.CharField(max_length=1000)
-#     ability_info = models.CharField(max_length=1000)
-#     ability_icon = models.CharField(max_length=500)
-#     stats = models.CharField(max_length=1000)
-#     icon = models.CharField(max_length=200, null=True, blank=True)
-#     set_id = models.ForeignKey(set, on_delete=models.CASCADE)
-#
-#     def safe_get_id(unit_id):
-#         try:
-#             return unit.objects.get(unit_id=unit_id)
-#         except unit.DoesNotExist:
-#             return None
-#
-#     def safe_get_name(name, set_id):
-#         try:
-#             return unit.objects.get(name=name, set_id=set_id)
-#         except unit.DoesNotExist:
-#             return None
+    class Meta:
+        unique_together = (('api_name', 'patch_id'),)
+        indexes = [
+            models.Index(fields=['api_name', 'patch_id']),
+            models.Index(fields=['api_name']),
+            models.Index(fields=['patch_id']),
+        ]
+
+    def __str__(self):
+        return f'{self.api_name} - {self.patch_id}'
 
 # class game_info(models.Model):
 #     game_id = models.CharField(max_length=200, primary_key=True)

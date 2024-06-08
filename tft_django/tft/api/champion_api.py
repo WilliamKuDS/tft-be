@@ -1,6 +1,6 @@
 import json
 from django.http import HttpResponse
-import tft.service.unit_service as service
+import tft.service.champion_service as service
 
 
 def createUnit(request):

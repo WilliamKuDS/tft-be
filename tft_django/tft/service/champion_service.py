@@ -1,4 +1,4 @@
-from tft.models import unit
+from tft.models import champion
 from json import dumps
 from django.forms.models import model_to_dict
 from django.core import serializers
@@ -9,11 +9,11 @@ def createUnit(data):
     trait = data['trait']
     setID = data['set_id']
 
-    unitObject = unit.safe_get_name(name=name, set_id=setID)
+    unitObject = champion.safe_get_name(name=name, set_id=setID)
     if unitObject is not None:
         print('Unit {} already exists'.format(name))
     else:
-        unit_insert = unit(
+        unit_insert = champion(
             name=name,
             trait=trait,
             set_id=setID
@@ -26,7 +26,7 @@ def createUnit(data):
 def readUnitID(data):
     unitID = data['unit_id']
 
-    unitObject = unit.safe_get(unit_id=unitID)
+    unitObject = champion.safe_get(unit_id=unitID)
     if unitObject is None:
         print('Unit {} does not exist'.format(unitID))
     else:
@@ -40,7 +40,7 @@ def readUnitName(data):
     name = data['name']
     setID = data['set_id']
 
-    unitObject = unit.safe_get_name(name=name, set_id=setID)
+    unitObject = champion.safe_get_name(name=name, set_id=setID)
     if unitObject is None:
         print('Unit {} does not exist'.format(name))
     else:
@@ -50,7 +50,7 @@ def readUnitName(data):
         return jsonData
 
 def readUnitAll():
-    unitObjects = unit.objects.all()
+    unitObjects = champion.objects.all()
     jsonData = serializers.serialize('json', unitObjects)
 
     return jsonData
@@ -62,7 +62,7 @@ def updateUnit(data):
     trait = data['trait']
     setID = data['set_id']
 
-    unitObject = unit.safe_get_id(unit_id=unitID)
+    unitObject = champion.safe_get_id(unit_id=unitID)
     if unitObject is None:
         print('Unit {} does not exist'.format(unitID))
     else:
@@ -80,7 +80,7 @@ def updateUnit(data):
 def deleteUnitID(data):
     unitID = data['unit_id']
 
-    unitObject = unit.safe_get_id(unit_id=unitID)
+    unitObject = champion.safe_get_id(unit_id=unitID)
     if unitObject is None:
         print('Unit {} does not exist'.format(unitID))
     else:
@@ -91,7 +91,7 @@ def deleteUnitName(data):
     name = data['name']
     setID = data['set_id']
 
-    unitObject = unit.safe_get_name(name=name, set_id=setID)
+    unitObject = champion.safe_get_name(name=name, set_id=setID)
     if unitObject is None:
         print('Unit {} does not exist'.format(name))
     else:

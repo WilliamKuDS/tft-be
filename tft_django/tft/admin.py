@@ -1,6 +1,9 @@
 from django.contrib import admin
 from .models import account, region, summoner, league, summoner_league
-from .models import set, patch, trait, trait_effect
+from .models import set, patch
+from .models import trait, trait_effect
+from .models import champion, champion_stats, champion_ability
+from .models import item, augment, miscellaneous
 
 
 class AccountInLine(admin.TabularInline):
@@ -40,9 +43,12 @@ admin.site.register(set)
 admin.site.register(patch)
 admin.site.register(trait)
 admin.site.register(trait_effect)
-# admin.site.register(augment)
-# admin.site.register(item)
-# admin.site.register(unit)
+admin.site.register(champion)
+admin.site.register(champion_stats)
+admin.site.register(champion_ability)
+admin.site.register(item)
+admin.site.register(augment)
+admin.site.register(miscellaneous)
 # admin.site.register(game_unit)
 # admin.site.register(game_info)
 # admin.site.register(game)

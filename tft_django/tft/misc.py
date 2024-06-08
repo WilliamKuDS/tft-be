@@ -5,8 +5,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count
 from django.utils import timezone
 
-from tft.models import account, region, summoner, league, summoner_league
-from tft.models import set, patch, trait, trait_effect, unit, item, augment
+from tft.models import account, region, summoner, league, summoner_league, champion_stats, champion_ability
+from tft.models import set, patch, trait, trait_effect, champion, item, augment
 
 
 def insertAccount(data):
@@ -92,8 +92,9 @@ def insertLeague(data):
 def insertSummonerLeague(data):
     try:
         accountObject = account.safe_get_by_puuid(data['puuid'])
-        summonerObject = summoner.safe_get_by_summoner_id(data['summonerId'])
+        summonerObject = summoner.safe_get_by_summoner_id_region(data['summonerId'], data['region'])
         leagueObject = league.safe_get_by_league_id(data['leagueId'])
+
         summoner_league_lookup_params = {'summoner_id': summonerObject.id, 'region': data['region'],
                                          'queue': data['queueType']}
         summoner_league_dict = {
@@ -124,9 +125,7 @@ def insertSet(data):
     try:
         setID = data['set_id']
         setObject = set.safe_get(set_id=setID)
-        if setObject is not None:
-            print("Set {} already exists in database".format(setID))
-        else:
+        if setObject is None:
             insert_set = set(
                 set_id=setID,
                 set_name=data['set_name']
@@ -141,10 +140,9 @@ def insertPatch(data):
     try:
         patchID = data['patch_id']
         patchObject = patch.safe_get_patch_id(patch_id=patchID)
-        if patchObject is not None:
-            print("Patch {} already exists in database".format(data['patch_id']))
-        else:
+        if patchObject is None:
             setID = set.objects.get(set_id=float(data['set_id']))
+
             insert_patch = patch(
                 patch_id=patchID,
                 set_id=setID,
@@ -168,10 +166,7 @@ def insertTrait(data):
             api_name = 'TFT' + str(int(patch_id.set_id.set_id)) + '_' + data['name']
 
         traitObject = trait.safe_get_api_name_patch(api_name=api_name, patch_id=patch_id)
-        if traitObject is not None:
-            print("Trait {} already exists in database, skipping".format(api_name))
-            return traitObject
-        else:
+        if traitObject is None:
             insert_trait = trait(
                 api_name=api_name,
                 patch_id=patch_id,
@@ -180,142 +175,87 @@ def insertTrait(data):
                 icon=data['icon'],
             )
             insert_trait.save()
-            return insert_trait
+
+            for effect in data['effects']:
+                style = effect['style'] if 'style' in data else None
+
+                insert_trait_effect = trait_effect(
+                    trait_id=insert_trait,
+                    style=style,
+                    min_units=effect['min_units'],
+                    max_units=effect['max_units'],
+                    variables=data['variables'],
+                )
+                insert_trait_effect.save()
 
     except Exception as e:
         raise Exception("Trait {} input incorrect. Error: {}".format(data, e))
 
-def insertTraitEffects(data):
+def insertChampion(data):
     try:
-        trait_id = data['trait']
-        min_units = data['minUnits']
-        max_units = data['maxUnits']
-
-        traitEffectsObject = trait_effect.safe_get_trait_id_min_max(trait_id, min_units, max_units)
-        if traitEffectsObject is not None:
-            print("TraitEffect for {} [{}:{}] already exists in database, skipping".format(trait_id, min_units, max_units))
+        patch_id = patch.safe_get_patch_id(data['patch_id'])
+        if 'apiName' in data:
+            api_name = data['apiName']
         else:
-            if 'style' in data:
-                style = data['style']
-            else:
-                style = None
+            api_name = 'TFT' + str(int(patch_id.set_id.set_id)) + '_' + data['name']
 
-            insert_trait_effect = trait_effect(
-                trait_id=trait_id,
-                style=style,
-                min_units=min_units,
-                max_units=max_units,
-                variables=data['variables'],
+        championObject = champion.safe_get_api_name_patch(api_name=api_name, patch_id=patch_id)
+        if championObject is None:
+            character_name = data['characterName'] if 'champion' in data else None
+            square_icon = data['squareIcon'] if 'squareIcon' in data else None
+            tile_icon = data['tileIcon'] if 'tileIcon' in data else None
+
+            insert_champion = champion(
+                api_name=api_name,
+                patch_id=patch_id,
+                character_name=character_name,
+                display_name=data['name'],
+                cost=data['cost'],
+                icon=data['icon'],
+                square_icon=square_icon,
+                tile_icon=tile_icon,
             )
-            insert_trait_effect.save()
+            insert_champion.save()
+
+            for curr_trait in data['traits']:
+                traitObject = trait.safe_get_name_patch(curr_trait, patch_id)
+                if traitObject is not None:
+                    insert_champion.trait.add(traitObject)
+                else:
+                    raise Exception("Trait {} input incorrect or doesn't exist in database. Error: {}".format(trait, patch_id))
+
+            insert_champion_stats = champion_stats(
+                champion_id=insert_champion,
+                armor=data['stats']['armor'],
+                attack_speed=data['stats']['attackSpeed'],
+                crit_chance=data['stats']['critChance'],
+                crit_multiplier=data['stats']['critMultiplier'],
+                damage=data['stats']['damage'],
+                hp=data['stats']['hp'],
+                initial_mana=data['stats']['initialMana'],
+                magic_resist=data['stats']['magicResist'],
+                mana=data['stats']['mana'],
+                range=data['stats']['range']
+            )
+            insert_champion_stats.save()
+
+            insert_champion_ability = champion_ability(
+                champion_id=insert_champion,
+                description=data['ability']['desc'],
+                icon=data['ability']['icon'],
+                name=data['ability']['name'],
+                variables=data['ability']['variables'],
+            )
+            insert_champion_ability.save()
 
     except Exception as e:
-        raise Exception("TraitEffect for {} [{}:{}] input incorrect. Error: {}".format(trait_id, min_units, max_units, e))
-
+        raise Exception("Champion {} input incorrect. Error: {}".format(api_name, e))
 
 def insertAugment(data):
-    try:
-        name = data['name']
-        tier = data['tier']
-        icon = data['icon']
-        display_name = data['display_name']
-        description = data['description']
-        set_id = float(data['set_id'])
-
-        augmentObject = augment.safe_get_name(name=name, set_id=set_id)
-
-        if augmentObject is not None:
-            print("Augment {} already exists in database, skipping.".format(name))
-        else:
-            set_id = set.objects.get(set_id=set_id)
-            insert_patch = augment(
-                name=name,
-                display_name=display_name,
-                tier=tier,
-                icon=icon,
-                description=description,
-                set_id=set_id
-            )
-            insert_patch.save()
-    except Exception as e:
-        print("Augment {} input incorrect. Error: {}".format(name, e))
+    pass
 
 def insertItem(data):
-    try:
-        item_id = data['item_id']
-        itemObject = item.safe_get_id(item_id=item_id)
-        if itemObject is not None:
-            print("Item {} already exists in database".format(item_id))
-        else:
-            name = data['name']
-            display_name = data['display_name']
-            icon = data['icon']
-            recipe = data['recipe']
-            description = data['description']
-            stats = data['stats']
-            tags = data['tags']
-            url = data['url']
-            set_id = set.safe_get(set_id=float(data['set_id']))
+    pass
 
-            insert_item = item(
-                item_id=item_id,
-                name=name,
-                display_name=display_name,
-                icon=icon,
-                description=description,
-                stats=stats,
-                tags=tags,
-                url=url,
-                set_id=set_id
-            )
-            insert_item.save()
-            if recipe is not None:
-                for items in recipe:
-                    item_id = 'TFT_Item_{}'.format(''.join(e for e in items if e.isalnum()))
-                    itemObject = item.safe_get_id(item_id=item_id)
-                    insert_item.recipe.add(itemObject)
-
-    except ValueError as e:
-        print("Item {} input incorrect. Error: {}".format(item_id, e))
-
-
-def insertUnit(data):
-    try:
-        name = data['name']
-        display_name = data['display_name']
-        tier = data['tier']
-        traitList = data['trait']
-        abilityName = data['ability_name']
-        abilityDescription = data['ability_description']
-        abilityInfo = data['ability_info']
-        abilityIcon = data['ability_icon']
-        stats = data['stats']
-        icon = data['icon']
-        setID = data['set_id']
-
-        unitObject = unit.safe_get_name(name=name, set_id=setID)
-        if unitObject is not None:
-            print("Unit {} already exists in database".format(name))
-        else:
-            set_id = set.safe_get(set_id=setID)
-            unit_patch = unit(
-                name=name,
-                display_name=display_name,
-                tier=tier,
-                ability_name=abilityName,
-                ability_description=abilityDescription,
-                ability_info=abilityInfo,
-                ability_icon=abilityIcon,
-                stats=stats,
-                icon=icon,
-                set_id=set_id
-            )
-            unit_patch.save()
-
-            for traits in traitList:
-                traitName = re.sub(r'[\W_]+', '', traits).lower()
-                temp = trait.objects.get(name=traitName, set_id=float(data['set_id']))
-                unit_patch.trait.add(temp)
-
-    except ValueError as e:
-        print("Unit {} input incorrect. Error: {}".format(name, e))
+def insertMisc(data):
+    pass
