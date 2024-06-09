@@ -78,7 +78,7 @@ def createUpdateSummonerMatches(puuid, regionObject):
 
                         match_data['match_id'] = match_id
                         match_data['game_id'] = match_info['gameId']
-                        match_data['server_code'] = server_code
+                        match_data['region'] = regionObject.region_id
                         match_data['data_version'] = match_metadata['data_version']
                         match_data['game_result'] = match_info['endOfGameResult']
                         match_data['game_creation'] = match_info['gameCreation']

@@ -382,7 +382,7 @@ class miscellaneous(models.Model):
 class match(models.Model):
     match_id = models.CharField(primary_key=True, max_length=15)
     game_id = models.BigIntegerField()
-    server_code = models.CharField(max_length=4)
+    region = models.CharField(max_length=4)
     game_result = models.CharField(max_length=25)
     data_version = models.CharField(max_length=5)
     game_creation = models.BigIntegerField()
