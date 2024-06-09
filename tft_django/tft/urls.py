@@ -1,48 +1,33 @@
 from django.urls import path
 
 from . import views
-from tft.api import augment_api, gameInfo_api, game_api, item_api, patch_api, player_api, set_api, trait_api, champion_api, \
-    gameTrait_api, gameUnit_api
+from tft.api import augment_api, match_api, item_api, patch_api, account_api, summoner_api, set_api, trait_api, champion_api, profile_api
 
 urlpatterns = [
     path("", views.index, name="index"),
     # ------------------------------------------
-    # Augments API Paths
-    path("augment", augment_api.readAugmentByName, name="readAugmentByName"),
-    path("augmentid", augment_api.readAugmentByID, name="readAugmentByID"),
-    path("augment/create", augment_api.createAugment, name="createAugment"),
-    path("augment/update", augment_api.updateAugment, name="updateAugment"),
-    path("augment/delete", augment_api.deleteAugmentByName, name="deleteAugmentByName"),
-    path("augmentid/delete", augment_api.deleteAugmentByID, name="deleteAugmentByID"),
+    # Account API Paths
+    path("account", account_api.createUpdateAccount, name="createUpdateAccount"),
+    path("account/create", account_api.createAccount, name="createPlayer"),
+    path("account/read", account_api.readAccount, name="readPlayer"),
+    path("account/update", account_api.updateAccount, name="updatePlayer"),
+    path("account/delete", account_api.deleteAccount, name="deleteAccount"),
     # ------------------------------------------
-    # Game API Paths
-    path("game", game_api.readGameByPlayerGame, name="readGameByName"),
-    path("gameid", game_api.readGameByID, name="readGameByID"),
-    path("game/create", game_api.createGame, name="createGame"),
-    path("game/update", game_api.updateGame, name="updateGame"),
-    path("game/delete", game_api.deleteGameByPlayerGame, name="deleteGameByName"),
-    path("gameid/delete", game_api.deleteGameByID, name="deleteGameByID"),
+    # Summoner API Paths
+    path("summoner", summoner_api.createUpdateSummoner, name="createUpdateAccount"),
+    path("summoner/create", summoner_api.createSummoner, name="createSummoner"),
+    path("summoner/read", summoner_api.readSummoner, name="readSummoner"),
+    path("summoner/update", summoner_api.updateSummoner, name="updateSummoner"),
+    path("summoner/delete", summoner_api.deleteSummoner, name="deleteSummoner"),
     # ------------------------------------------
-    # GameInfo API Paths
-    path("game/info", gameInfo_api.readGameInfoByGameID, name="readGameInfoByGameID"),
-    path("game/info/playerid", gameInfo_api.readGameInfoByPlayerID, name="readGameInfoByGameID"),
-    path("game/info/gameid", gameInfo_api.readGameInfoByGameID, name="readGameInfoByGameID"),
-    path("game/info/playername", gameInfo_api.readGameInfoByPlayerName, name="readGameInfoByPlayerName"),
-    path("game/info/create", gameInfo_api.createGameInfo, name="createGameInfo"),
-    path("game/info/update", gameInfo_api.updateGameInfo, name="updateGameInfo"),
-    path("game/info/delete", gameInfo_api.deleteGameInfoByGameID, name="deleteGameInfoByGameID"),
+    # Profile API Paths
+    path("profile", profile_api.createUpdateProfile, name="createUpdateProfile"),
     # ------------------------------------------
-    # GameTrait API Paths
-    path("game/trait", gameTrait_api.readGameTrait, name="readGameTrait"),
-    path("game/trait/create", gameTrait_api.createGameTrait, name="createTrait"),
-    path("game/trait/update", gameTrait_api.updateGameTrait, name="updateTrait"),
-    path("game/trait/delete", gameTrait_api.deleteGameTrait, name="deleteTrait"),
-    # ------------------------------------------
-    # GameUnit API Paths
-    path("game/unit", gameUnit_api.readGameUnit, name="readGameUnit"),
-    path("game/unit/create", gameUnit_api.createGameUnit, name="createGameUnit"),
-    path("game/unit/update", gameUnit_api.updateGameUnit, name="updateGameUnit"),
-    path("game/unit/delete", gameUnit_api.deleteGameUnit, name="deleteGameUnit"),
+    # Match API Paths
+    path("match", match_api.readMatch, name="readGameByName"),
+    path("match/create", match_api.createMatch, name="createGame"),
+    path("match/update", match_api.updateMatch, name="updateGame"),
+    path("match/delete", match_api.deleteMatch, name="deleteGameByID"),
     # ------------------------------------------
     # Item API Paths
     path("item", item_api.readItemByName, name="readItemByName"),
@@ -53,20 +38,20 @@ urlpatterns = [
     path("item/delete", item_api.deleteItemByName, name="deleteItemByName"),
     path("itemid/delete", item_api.deleteItemByID, name="deleteItemByID"),
     # ------------------------------------------
+    # Augments API Paths
+    path("augment", augment_api.readAugmentByName, name="readAugmentByName"),
+    path("augmentid", augment_api.readAugmentByID, name="readAugmentByID"),
+    path("augment/create", augment_api.createAugment, name="createAugment"),
+    path("augment/update", augment_api.updateAugment, name="updateAugment"),
+    path("augment/delete", augment_api.deleteAugmentByName, name="deleteAugmentByName"),
+    path("augmentid/delete", augment_api.deleteAugmentByID, name="deleteAugmentByID"),
+    # ------------------------------------------
     # Patch API Paths
     path("patch", patch_api.readPatchByID, name="readPatchByID"),
     path("patchset", patch_api.readPatchBySetID, name="readPatchBySetID"),
     path("patch/create", patch_api.createPatch, name="createPatch"),
     path("patch/update", patch_api.updatePatch, name="updatePatch"),
     path("patch/delete", patch_api.deletePatchByID, name="deletePatchById"),
-    # ------------------------------------------
-    # Player API Paths
-    path("playerid", player_api.readPlayerByPUUID, name="readPlayerByPUUID"),
-    path("player", player_api.readPlayerByName, name="readPlayerByName"),
-    path("player/create", player_api.createPlayer, name="createPlayer"),
-    path("player/update", player_api.updatePlayer, name="updatePlayer"),
-    path("player/delete", player_api.deletePlayerByValues, name="deletePlayerByValue"),
-    path("playerid/delete", player_api.deletePlayerByID, name="deletePlayerByID"),
     # ------------------------------------------
     # Set API Paths
     path("set", set_api.readSetByName, name="readSetByName"),

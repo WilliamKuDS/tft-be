@@ -10,7 +10,7 @@ from dotenv import load_dotenv, find_dotenv
 from datetime import datetime
 
 
-def createPlayer(data):
+def createSummoner(data):
     playerName = data['player_name']
     region = data['player_region'].lower()
     lastUpdated = datetime.today()
@@ -18,47 +18,34 @@ def createPlayer(data):
     playerID = account.safe_get(player_name=playerName, region=region)
 
     if playerID is not None:
-        print("Player {} already exists in database".format(playerName))
+        print("Account {} already exists in database".format(playerName))
     else:
         insert_player = account(
             player_name=playerName,
             region=region,
             last_updated=lastUpdated
         )
-        insert_player.save()
+        #insert_player.save()
         return insert_player.pk
 
-
-def readPlayerID(data):
-    playerID = data['player_id']
-
-    playerObject = account.safe_get_id(player_id=playerID)
-
-    if playerObject is None:
-        print("Player {} does not exist in database".format(playerID))
-    else:
-        dictObject = model_to_dict(playerObject)
-        jsonData = dumps(dictObject, indent=4, sort_keys=True, default=str)
-
-        return jsonData
+# def readSummoner(data):
+#     pass
 
 
-def readPlayerValues(playerName):
+def readSummoner(puuid, region_id):
     try:
-        game_name, tag_line, region_id = playerName.split('-')
-
-        accountObject = account.safe_get_by_name_tag(game_name=game_name, tag_line=tag_line)
+        accountObject = account.safe_get_by_puuid(puuid)
         if accountObject is None:
-            raise Exception("Player does not exist in database for {}".format(playerName))
+            raise Exception("Account does not exist in database for {}".format(puuid))
 
         regionObject = region.safe_get_by_region_id(region_id)
         summonerObject = summoner.safe_get_by_puuid_region(accountObject, regionObject)
         if summonerObject is None:
-            raise Exception("Summoner does not exist in database for {}".format(playerName))
+            raise Exception("Summoner does not exist in database for {}".format(puuid))
 
         summonerLeagueObject = summoner_league.safe_get_by_summoner_id_and_region(summonerObject, regionObject)
         if summonerLeagueObject is None:
-            raise Exception("SummonerLeague does not exist in database for {}".format(playerName))
+            raise Exception("SummonerLeague does not exist in database for {}".format(puuid))
 
         summonerDictObject = model_to_dict(summonerObject)
         summonerLeagueDictObject = model_to_dict(summonerLeagueObject)
@@ -66,10 +53,11 @@ def readPlayerValues(playerName):
         jsonData = dumps(dictObject, indent=4, sort_keys=True, default=str)
 
         return jsonData
-    except Exception as e:
-        raise Exception("Server error in reading player {}: {}".format(playerName, e))
 
-def updatePlayer(data):
+    except Exception as e:
+        raise Exception("Server error in reading player {}: {}".format(puuid, e))
+
+def updateSummoner(data):
     playerID = data['player_id']
     playerName = data['player_name']
     region = data['player_region'].lower()
@@ -78,7 +66,7 @@ def updatePlayer(data):
     playerObject = account.safe_get_id(player_id=playerID)
 
     if playerObject is None:
-        print("Player {} doesn't exist in database".format(playerName))
+        print("Account {} doesn't exist in database".format(playerName))
     else:
         playerObject.player_name = playerName
         playerObject.region = region
@@ -91,28 +79,28 @@ def updatePlayer(data):
         return jsonData
 
 
-def deletePlayerID(data):
+def deleteSummoner(data):
     playerID = data['player_id']
 
     playerObject = account.safe_get_id(player_id=playerID)
     if playerObject is None:
-        print("Player {} doesn't exist in database, can't delete".format(playerID))
+        print("Account {} doesn't exist in database, can't delete".format(playerID))
     else:
         playerObject.delete()
 
 
-def deletePlayerValues(data):
+def deleteAccountValues(data):
     playerName = data['player_name']
     region = data['player_region'].lower()
 
     playerObject = account.safe_get(player_name=playerName, region=region)
     if playerObject is None:
-        print("Player {} doesn't exist in database, can't delete".format(playerName))
+        print("Account {} doesn't exist in database, can't delete".format(playerName))
     else:
         playerObject.delete()
 
 
-def updateOrCreatePlayerByPUUID(puuid, region_id):
+def updateOrCreateAccountByPUUID(puuid, region_id):
     try:
         load_dotenv(find_dotenv())
 
@@ -159,4 +147,12 @@ def updateOrCreatePlayerByPUUID(puuid, region_id):
         return 200
     except Exception as e:
         print("Failed to update or create player for {}: {}".format(puuid, e))
+        return 500
+
+def createUpdateAccount(data):
+    try:
+        insertAccount(data)
+        return 200
+    except Exception as e:
+        print("Failed to create and/or update player for {}: {}".format(data['puuid'], e))
         return 500

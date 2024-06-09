@@ -2,6 +2,7 @@ from django.utils import timezone
 from django.db import transaction
 from tft.models import account, region, summoner, league, summoner_league, champion_stats, champion_ability
 from tft.models import set, patch, trait, trait_effect, champion, item, augment, miscellaneous
+from tft.models import match, match_summoner
 
 
 def insert_object(model, lookup_params, data_dict):
@@ -211,8 +212,10 @@ def insertItem(data):
                     unique=data.get('unique', None),
                     effects=data['effects'] if data['effects'] else None,
                     composition=None if data.get('composition') == [] else data.get('composition', None),
-                    associated_traits=None if data.get('associatedTraits') == [] else data.get('associatedTraits', None),
-                    incompatible_traits=None if data.get('incompatibleTraits') == [] else data.get('incompatibleTraits', None),
+                    associated_traits=None if data.get('associatedTraits') == [] else data.get('associatedTraits',
+                                                                                               None),
+                    incompatible_traits=None if data.get('incompatibleTraits') == [] else data.get('incompatibleTraits',
+                                                                                                   None),
                 )
                 insert_item.save()
 
@@ -246,8 +249,10 @@ def insertAugment(data):
                     unique=data.get('unique', None),
                     effects=data['effects'] if data['effects'] else None,
                     composition=None if data.get('composition') == [] else data.get('composition', None),
-                    associated_traits=None if data.get('associatedTraits') == [] else data.get('associatedTraits', None),
-                    incompatible_traits=None if data.get('incompatibleTraits') == [] else data.get('incompatibleTraits', None),
+                    associated_traits=None if data.get('associatedTraits') == [] else data.get('associatedTraits',
+                                                                                               None),
+                    incompatible_traits=None if data.get('incompatibleTraits') == [] else data.get('incompatibleTraits',
+                                                                                                   None),
                 )
                 insert_augment.save()
 
@@ -281,8 +286,10 @@ def insertMisc(data):
                     unique=data.get('unique', None),
                     effects=data['effects'] if data['effects'] else None,
                     composition=None if data.get('composition') == [] else data.get('composition', None),
-                    associated_traits=None if data.get('associatedTraits') == [] else data.get('associatedTraits', None),
-                    incompatible_traits=None if data.get('incompatibleTraits') == [] else data.get('incompatibleTraits', None),
+                    associated_traits=None if data.get('associatedTraits') == [] else data.get('associatedTraits',
+                                                                                               None),
+                    incompatible_traits=None if data.get('incompatibleTraits') == [] else data.get('incompatibleTraits',
+                                                                                                   None),
                 )
                 insert_miscellaneous.save()
 
@@ -298,3 +305,25 @@ def insertMisc(data):
 
     except Exception as e:
         raise Exception(f"Miscellaneous {data['name']} input incorrect. Error: {e}")
+
+
+def insertMatch(data):
+    try:
+        with transaction.atomic():
+            insert_match = match(**data)
+            insert_match.save()
+            return insert_match
+
+    except Exception as e:
+        raise Exception(f"Match {data['match_id']} input incorrect. Error: {e}")
+
+
+def insertMatchSummoner(data):
+    try:
+        with transaction.atomic():
+            data['puuid'] = account.safe_get_by_puuid(data['puuid'])
+            insert_match_summoner = match_summoner(**data)
+            insert_match_summoner.save()
+
+    except Exception as e:
+        raise Exception(f"Match Summoner {data['match_id']} {data['puuid']} input incorrect. Error: {e}")

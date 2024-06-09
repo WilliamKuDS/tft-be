@@ -380,22 +380,32 @@ class miscellaneous(models.Model):
         return f'{self.api_name} - {self.patch_id}'
 
 class match(models.Model):
-    match_id = models.CharField(max_length=15, primary_key=True)
-    data_version = models.CharField(max_length=10)
-    game_creation = models.DateTimeField()
-    game_datetime = models.DateTimeField()
+    match_id = models.CharField(primary_key=True, max_length=15)
+    game_id = models.BigIntegerField()
+    server_code = models.CharField(max_length=4)
+    game_result = models.CharField(max_length=25)
+    data_version = models.CharField(max_length=5)
+    game_creation = models.BigIntegerField()
+    game_datetime = models.BigIntegerField()
     game_length = models.FloatField()
-    game_version = models.CharField(max_length=255)
+    game_version = models.CharField(max_length=100)
     map_id = models.IntegerField()
     queue_id = models.IntegerField()
     game_type = models.CharField(max_length=50)
     set_core_name = models.CharField(max_length=50)
-    set = models.ForeignKey(set, on_delete=models.CASCADE)
+    set = models.IntegerField()
+
+    def safe_get_by_match_id(match_id):
+        try:
+            return match.objects.get(match_id=match_id)
+        except match.DoesNotExist:
+            return None
+
 
 class match_summoner(models.Model):
     id = models.AutoField(primary_key=True)
-    match = models.ForeignKey(match, on_delete=models.CASCADE)
-    player = models.ForeignKey(account, on_delete=models.CASCADE)
+    match_id = models.ForeignKey(match, on_delete=models.CASCADE)
+    puuid = models.ForeignKey(account, on_delete=models.CASCADE)
     placement = models.IntegerField()
     gold_left = models.IntegerField()
     last_round = models.IntegerField()
@@ -403,130 +413,15 @@ class match_summoner(models.Model):
     players_eliminated = models.IntegerField()
     time_eliminated = models.FloatField()
     total_damage_to_players = models.IntegerField()
+    companion = models.JSONField()
+    missions = models.JSONField()
     augments = models.JSONField()
     traits = models.JSONField()
     units = models.JSONField()
 
-# class game_info(models.Model):
-#     game_id = models.CharField(max_length=200, primary_key=True)
-#     queue = models.CharField(max_length=50)
-#     lobby_rank = models.CharField(max_length=50)
-#     patch_id = models.ForeignKey(patch, on_delete=models.CASCADE)
-#     date = models.DateField()
-#     player_id = models.ManyToManyField(player)
-#
-#     class Meta:
-#         indexes = [
-#             models.Index(fields=['queue'])
-#         ]
-#
-#     def safe_get_game_id(game_id):
-#         try:
-#             return game_info.objects.get(game_id=game_id)
-#         except game_info.DoesNotExist:
-#             return None
-#         except game_info.IntegrityError:
-#             return None
-#
-#     def safe_get_player_id(player_id):
-#         try:
-#             return game_info.objects.filter(player_id=player_id)
-#         except game_info.DoesNotExist:
-#             return None
-#
-#     def safe_get_player_in_game_id(game_id, player_id):
-#         try:
-#             return game_info.objects.filter(game_id=game_id, player_id=player_id)
-#         except game_info.DoesNotExist:
-#             return None
-#
-#     def safe_add_player_id(player_id):
-#         try:
-#             return game_info.player_id.add(player_id=player_id)
-#         except game_info.IntegrityError:
-#             return None
-#
-#
-# class game_unit(models.Model):
-#     game_unit_id = models.AutoField(primary_key=True)
-#     unit_id = models.ForeignKey(unit, on_delete=models.CASCADE)
-#     patch_id = models.ForeignKey(patch, on_delete=models.CASCADE)
-#     star = models.IntegerField()
-#     item = models.ManyToManyField(item)
-#
-#     def safe_get(game_unit_id):
-#         try:
-#             return game_unit.objects.get(game_unit_id=game_unit_id)
-#         except game_unit.DoesNotExist:
-#             return None
-#
-#     def safe_get_unit(unit_id, patch_id, star, items):
-#         try:
-#             existCheck = game_unit.objects.filter(unit_id=unit_id, patch_id=patch_id, star=star).annotate(
-#                 count=Count('item')).filter(count=len(items))
-#             for pk in items:
-#                 existCheck = existCheck.filter(item__pk=pk)
-#             return existCheck
-#         except:
-#             return None
-#
-#
-# class game_trait(models.Model):
-#     game_trait_id = models.AutoField(primary_key=True)
-#     trait_id = models.ForeignKey(trait, on_delete=models.CASCADE)
-#     count = models.IntegerField()
-#
-#     def safe_get(game_trait_id):
-#         try:
-#             return game_trait.objects.get(game_trait_id=game_trait_id)
-#         except game_trait.DoesNotExist:
-#             return None
-#
-#     def safe_get_trait(trait_id, count):
-#         try:
-#             return game_trait.objects.get(trait_id=trait_id, count=count)
-#         except game_trait.DoesNotExist:
-#             return None
-#
-#
-# class game(models.Model):
-#     player_game_id = models.AutoField(primary_key=True)
-#     player_id = models.ForeignKey(player, on_delete=models.CASCADE)
-#     game_id = models.ForeignKey(game_info, on_delete=models.CASCADE)
-#     icon = models.CharField(max_length=200)
-#     placement = models.IntegerField()
-#     level = models.IntegerField()
-#     length = models.CharField(max_length=10)
-#     round = models.CharField(max_length=10)
-#     augment_id = models.ManyToManyField(augment)
-#     headliner_id = models.ForeignKey(trait, on_delete=models.CASCADE, null=True, related_name='headliner')
-#     game_trait_id = models.ManyToManyField(game_trait)
-#     game_unit_id = models.ManyToManyField(game_unit)
-#
-#     def safe_get(player_game_id):
-#         try:
-#             return game.objects.get(player_game_id=player_game_id)
-#         except game.DoesNotExist:
-#             return None
-#
-#     def safe_get_player_game_id(player_id, game_id):
-#         try:
-#             return game.objects.get(player_id=player_id, game_id=game_id)
-#         except game.DoesNotExist:
-#             return None
-
-
-# def serialize(self):
-#     return {
-#         "Name": self.playerName,
-#         "GameID": self.gameID,
-#         "Queue": self.queue,
-#         "Placement": self.placement,
-#         "Level": self.level,
-#         "Length": self.length,
-#         "Round": self.round,
-#         "Augments": self.augments,
-#         "Headliner": self.headliner,
-#         "Traits": self.traits,
-#         "Units": self.units
-#     }
+    class Meta:
+        unique_together = (('match_id', 'puuid'),)
+        indexes = [
+            models.Index(fields=['match_id', 'puuid']),
+            models.Index(fields=['puuid']),
+        ]
