@@ -53,6 +53,7 @@ def insertSummoner(data):
                 'account_id': data['accountId'],
                 'icon': data['profileIconId'],
                 'level': data['summonerLevel'],
+                'revision_date': data['revisionDate'],
                 'last_updated': timezone.now(),
             }
             return insert_object(summoner, summoner_lookup_params, summoner_dict)
@@ -322,6 +323,9 @@ def insertMatchSummoner(data):
     try:
         with transaction.atomic():
             data['puuid'] = account.safe_get_by_puuid(data['puuid'])
+            # summonerLeagueObject = summoner.safe_get_by_puuid_region(data['puuid'], data['region'])
+            # data['tier'] = summonerLeagueObject.tier
+            # data['rank'] = summonerLeagueObject.rank
             insert_match_summoner = match_summoner(**data)
             insert_match_summoner.save()
 

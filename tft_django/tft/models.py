@@ -1,7 +1,5 @@
 from django.db import models
 
-import tft
-
 
 # Player Account
 class account(models.Model):
@@ -52,6 +50,7 @@ class summoner(models.Model):
     account_id = models.CharField(max_length=100)
     icon = models.CharField(max_length=5)
     level = models.IntegerField()
+    revision_date = models.BigIntegerField()
     last_updated = models.DateTimeField(blank=True, null=True)
 
     class Meta:
@@ -83,7 +82,7 @@ class league(models.Model):
     region = models.ForeignKey(region, on_delete=models.CASCADE, related_name='leagues')
     tier = models.CharField(max_length=10)
     name = models.CharField(max_length=50)
-    queue = models.CharField(max_length=10)
+    queue = models.CharField(max_length=25)
 
     class Meta:
         unique_together = (('league_id', 'region'),)
@@ -106,7 +105,7 @@ class summoner_league(models.Model):
     id = models.AutoField(primary_key=True)
     summoner = models.ForeignKey(summoner, on_delete=models.CASCADE, related_name='summoner_leagues')
     region = models.ForeignKey(region, on_delete=models.CASCADE, related_name='summoner_leagues')
-    queue = models.CharField(max_length=50)
+    queue = models.CharField(max_length=25)
     puuid = models.ForeignKey(account, on_delete=models.CASCADE, related_name='summoner_leagues')
     league = models.ForeignKey(league, on_delete=models.CASCADE, related_name='summoner_leagues')
     tier = models.CharField(max_length=10)
@@ -131,6 +130,18 @@ class summoner_league(models.Model):
     def safe_get_by_summoner_id_and_region(summoner_id, region):
         try:
             return summoner_league.objects.get(summoner_id=summoner_id, region=region)
+        except summoner_league.DoesNotExist:
+            return None
+
+    def safe_get_by_summoner_id_region_and_queue(summoner_id, region, queue):
+        try:
+            return summoner_league.objects.get(summoner_id=summoner_id, region=region, queue=queue)
+        except summoner_league.DoesNotExist:
+            return None
+
+    def safe_get_by_puuid_region_and_queue(puuid, region, queue):
+        try:
+            return summoner_league.objects.get(puuid=puuid, region=region, queue=queue)
         except summoner_league.DoesNotExist:
             return None
 
@@ -379,6 +390,7 @@ class miscellaneous(models.Model):
     def __str__(self):
         return f'{self.api_name} - {self.patch_id}'
 
+
 class match(models.Model):
     match_id = models.CharField(primary_key=True, max_length=15)
     game_id = models.BigIntegerField()
@@ -394,6 +406,7 @@ class match(models.Model):
     game_type = models.CharField(max_length=50)
     set_core_name = models.CharField(max_length=50)
     set = models.IntegerField()
+    patch = models.CharField(max_length=10)
 
     def safe_get_by_match_id(match_id):
         try:

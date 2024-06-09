@@ -52,7 +52,8 @@ def readSummoner(puuid, region_id):
         return jsonData
 
     except Exception as e:
-        raise Exception("Server error in reading player {}: {}".format(puuid, e))
+        print("Server error in reading player {}: {}".format(puuid, e))
+        return 500
 
 def updateSummoner(data):
     playerID = data['player_id']
@@ -60,7 +61,7 @@ def updateSummoner(data):
     region = data['player_region'].lower()
     lastUpdated = data['last_updated']
 
-    playerObject = account.safe_get_id(player_id=playerID)
+    playerObject = account.safe_get_by_puuid(player_id=playerID)
 
     if playerObject is None:
         print("Account {} doesn't exist in database".format(playerName))
