@@ -23,6 +23,8 @@ urlpatterns = [
     # ------------------------------------------
     # Match API Paths
     path("match", match_api.readMatch, name="readGame"),
+    path("match/basic", match_api.getBasicMatch, name="getBasicMatch"),
+    path("match/detailed", match_api.getDetailedMatch, name="getDetailedMatch"),
     path("match/create", match_api.createMatch, name="createGame"),
     path("match/update", match_api.updateMatch, name="updateGame"),
     path("match/delete", match_api.deleteMatch, name="deleteGame"),

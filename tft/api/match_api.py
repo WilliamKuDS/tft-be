@@ -26,3 +26,13 @@ def deleteMatch(request):
     body = json.loads(request.body)
     service.deleteMatch(body)
     return HttpResponse('Match Deleted')
+
+def getBasicMatch(request):
+    puuid, region = request.headers['puuid'], request.headers['region']
+    data = service.getBasicMatch(puuid, region)
+    return HttpResponse(data)
+
+def getDetailedMatch(request):
+    match_id = request.headers['matchID']
+    data = service.getDetailedMatch(match_id)
+    return HttpResponse(data)
