@@ -9,16 +9,11 @@ def createPatch(request):
     return HttpResponse(data)
 
 
-def readPatchByID(request):
+def readPatch(request):
     body = json.loads(request.body)
-    data = service.readPatchID(body)
+    data = service.readPatch(body)
     return HttpResponse(data)
 
-
-def readPatchBySetID(request):
-    body = json.loads(request.body)
-    data = service.readPatchPatchID(body)
-    return HttpResponse(data)
 
 
 def updatePatch(request):
@@ -27,7 +22,7 @@ def updatePatch(request):
     return HttpResponse(data)
 
 
-def deletePatchByID(request):
+def deletePatch(request):
     body = json.loads(request.body)
     service.deletePatch(body)
     return HttpResponse('Patch Deleted')

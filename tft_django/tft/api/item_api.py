@@ -9,16 +9,11 @@ def createItem(request):
     return HttpResponse(data)
 
 
-def readItemByID(request):
+def readItem(request):
     body = json.loads(request.body)
-    data = service.readItemID(body)
+    data = service.readItem(body)
     return HttpResponse(data)
 
-
-def readItemByName(request):
-    body = json.loads(request.body)
-    data = service.readItemName(body)
-    return HttpResponse(data)
 
 
 def readItemAll(request):
@@ -32,13 +27,8 @@ def updateItem(request):
     return HttpResponse(data)
 
 
-def deleteItemByID(request):
+def deleteItem(request):
     body = json.loads(request.body)
-    service.deleteItemID(body)
+    service.deleteItem(body)
     return HttpResponse('Item Deleted')
 
-
-def deleteItemByName(request):
-    body = json.loads(request.body)
-    service.deleteItemName(body)
-    return HttpResponse('Item Deleted')

@@ -1,5 +1,5 @@
 from tft.models import region, match, account
-from tft.misc import insertSummoner, insertSummonerLeague, insertLeague, insertMatch, insertMatchSummoner, insertAccount
+from tft.utils.insert_functions import insertSummoner, insertSummonerLeague, insertLeague, insertMatch, insertMatchSummoner, insertAccount
 from django.db import transaction
 import requests
 import os
@@ -90,6 +90,7 @@ def createUpdateSummonerMatches(puuid, regionObject):
                         match_data['game_type'] = match_info['tft_game_type']
                         match_data['set_core_name'] = match_info['tft_set_core_name']
                         match_data['set'] = match_info['tft_set_number']
+                        match_data
                         matchObject = insertMatch(match_data)
 
                         for participant in match_info['participants']:

@@ -3,42 +3,33 @@ from django.http import HttpResponse
 import tft.service.champion_service as service
 
 
-def createUnit(request):
+def createChampion(request):
     body = json.loads(request.body)
     data = service.createUnit(body)
     return HttpResponse(data)
 
 
-def readUnitByID(request):
+def readChampion(request):
     body = json.loads(request.body)
-    data = service.readUnitID(body)
+    data = service.readUnit(body)
     return HttpResponse(data)
 
 
-def readUnitByName(request):
-    body = json.loads(request.body)
-    data = service.readUnitName(body)
-    return HttpResponse(data)
 
 
-def readUnitAll(request):
+def readChampionAll(request):
     data = service.readUnitAll()
     return HttpResponse(data)
 
 
-def updateUnit(request):
+def updateChampion(request):
     body = json.loads(request.body)
     data = service.updateUnit(body)
     return HttpResponse(data)
 
 
-def deleteUnitByID(request):
+def deleteChampion(request):
     body = json.loads(request.body)
-    service.deleteUnitID(body)
+    service.deleteUnit(body)
     return HttpResponse('Unit Deleted')
 
-
-def deleteUnitByName(request):
-    body = json.loads(request.body)
-    service.deleteUnitName(body)
-    return HttpResponse('Unit Deleted')

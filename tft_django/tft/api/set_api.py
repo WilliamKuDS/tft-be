@@ -9,15 +9,9 @@ def createSet(request):
     return HttpResponse(data)
 
 
-def readSetByID(request):
+def readSet(request):
     body = json.loads(request.body)
-    data = service.readSetID(body)
-    return HttpResponse(data)
-
-
-def readSetByName(request):
-    body = json.loads(request.body)
-    data = service.readSetName(body)
+    data = service.readSet(body)
     return HttpResponse(data)
 
 

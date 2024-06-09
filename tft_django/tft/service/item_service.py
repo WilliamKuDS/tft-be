@@ -5,46 +5,13 @@ from django.core import serializers
 
 
 def createItem(data):
-    name = data['name']
-    setID = data['set_id']
-
-    itemObject = item.safe_get_name(name=name, set_id=setID)
-    if itemObject is not None:
-        print('Item {} already exists'.format(name))
-    else:
-        item_insert = item(
-            name=name,
-            set_id=setID
-        )
-        item_insert.save()
-        return item_insert.pk
+    pass
 
 
-def readItemID(data):
-    itemID = data['item_id']
-
-    itemObject = item.safe_get(item_id=itemID)
-    if itemObject is None:
-        print('Item {} does not exist'.format(itemID))
-    else:
-        dictObject = model_to_dict(itemObject)
-        jsonData = dumps(dictObject, indent=4, sort_keys=True, default=str)
-
-        return jsonData
+def readItem(data):
+    pass
 
 
-def readItemName(data):
-    name = data['name']
-    setID = data['set_id']
-
-    itemObject = item.safe_get_name(name=name, set_id=setID)
-    if itemObject is None:
-        print('Item {} does not exist'.format(name))
-    else:
-        dictObject = model_to_dict(itemObject)
-        jsonData = dumps(dictObject, indent=4, sort_keys=True, default=str)
-
-        return jsonData
 
 
 def readItemAll():
@@ -55,40 +22,10 @@ def readItemAll():
 
 
 def updateItem(data):
-    itemID = data['item_id']
-    name = data['name']
-    setID = data['set_id']
-
-    itemObject = item.safe_get_id(item_id=itemID)
-    if itemObject is None:
-        print('Item {} does not exist'.format(itemID))
-    else:
-        itemObject.name = name
-        itemObject.set_id = setID
-        itemObject.save()
-
-        dictObject = model_to_dict(itemObject)
-        jsonData = dumps(dictObject, indent=4, sort_keys=True, default=str)
-
-        return jsonData
+    pass
 
 
-def deleteItemID(data):
-    itemID = data['item_id']
-
-    itemObject = item.safe_get_id(item_id=itemID)
-    if itemObject is None:
-        print('Item {} does not exist'.format(itemID))
-    else:
-        itemObject.delete()
 
 
-def deleteItemName(data):
-    name = data['name']
-    setID = data['set_id']
-
-    itemObject = item.safe_get_name(name=name, set_id=setID)
-    if itemObject is None:
-        print('Item {} does not exist'.format(name))
-    else:
-        itemObject.delete()
+def deleteItem(data):
+    pass

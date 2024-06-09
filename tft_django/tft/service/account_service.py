@@ -1,5 +1,5 @@
 from tft.models import account
-from tft.misc import insertAccount
+from tft.utils.insert_functions import insertAccount
 from django.forms.models import model_to_dict
 from json import dumps
 import requests

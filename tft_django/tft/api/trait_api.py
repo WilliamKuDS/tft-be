@@ -9,15 +9,9 @@ def createTrait(request):
     return HttpResponse(data)
 
 
-def readTraitByID(request):
+def readTrait(request):
     body = json.loads(request.body)
-    data = service.readTraitID(body)
-    return HttpResponse(data)
-
-
-def readTraitByName(request):
-    body = json.loads(request.body)
-    data = service.readTraitName(body)
+    data = service.readTrait(body)
     return HttpResponse(data)
 
 
@@ -29,11 +23,6 @@ def updateTrait(request):
 
 def deleteTraitByID(request):
     body = json.loads(request.body)
-    service.deleteTraitID(body)
+    service.deleteTrait(body)
     return HttpResponse('Trait Deleted')
 
-
-def deleteTraitByName(request):
-    body = json.loads(request.body)
-    service.deleteTraitName(body)
-    return HttpResponse('Trait Deleted')

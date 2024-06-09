@@ -1,5 +1,5 @@
 from tft.models import account, summoner, region, summoner_league
-from tft.misc import insertAccount, insertSummoner, insertSummonerLeague, insertLeague
+from tft.utils.insert_functions import insertAccount, insertSummoner, insertSummonerLeague, insertLeague
 
 from django.forms.models import model_to_dict
 
@@ -27,9 +27,6 @@ def createSummoner(data):
         )
         #insert_player.save()
         return insert_player.pk
-
-# def readSummoner(data):
-#     pass
 
 
 def readSummoner(puuid, region_id):
@@ -85,17 +82,6 @@ def deleteSummoner(data):
     playerObject = account.safe_get_id(player_id=playerID)
     if playerObject is None:
         print("Account {} doesn't exist in database, can't delete".format(playerID))
-    else:
-        playerObject.delete()
-
-
-def deleteAccountValues(data):
-    playerName = data['player_name']
-    region = data['player_region'].lower()
-
-    playerObject = account.safe_get(player_name=playerName, region=region)
-    if playerObject is None:
-        print("Account {} doesn't exist in database, can't delete".format(playerName))
     else:
         playerObject.delete()
 

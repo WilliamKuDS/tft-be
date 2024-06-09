@@ -4,83 +4,19 @@ from json import dumps
 
 
 def createAugment(data):
-    name = data['name']
-    setID = data['set_id']
-
-    augmentObject = augment.safe_get_name(name=name, set_id=setID)
-    if augmentObject is not None:
-        print('Augment {} already exists'.format(name))
-    else:
-        augment_insert = augment(
-            name=name,
-            set_id=setID
-        )
-        augment_insert.save()
-        return augment_insert.pk
+    pass
 
 
-def readAugmentID(data):
-    augmentID = data['augment_id']
+def readAugment(data):
+    pass
 
-    augmentObject = augment.safe_get(augment_id=augmentID)
-    if augmentObject is None:
-        print('Augment {} does not exist'.format(augmentID))
-    else:
-        dictObject = model_to_dict(augmentObject)
-        jsonData = dumps(dictObject, indent=4, sort_keys=True, default=str)
-
-        return jsonData
-
-
-def readAugmentName(data):
-    name = data['name']
-    setID = data['set_id']
-
-    augmentObject = augment.safe_get_name(name=name, set_id=setID)
-    if augmentObject is None:
-        print('Augment {} does not exist'.format(name))
-    else:
-        dictObject = model_to_dict(augmentObject)
-        jsonData = dumps(dictObject, indent=4, sort_keys=True, default=str)
-
-        return jsonData
 
 
 def updateAugment(data):
-    augmentID = data['Augment_id']
-    name = data['name']
-    setID = data['set_id']
-
-    augmentObject = augment.safe_get_id(augment_id=augmentID)
-    if augmentObject is None:
-        print('Augment {} does not exist'.format(augmentID))
-    else:
-        augmentObject.name = name
-        augmentObject.set_id = setID
-        augmentObject.save()
-
-        dictObject = model_to_dict(augmentObject)
-        jsonData = dumps(dictObject, indent=4, sort_keys=True, default=str)
-
-        return jsonData
+    pass
 
 
-def deleteAugmentID(data):
-    augmentID = data['augment_id']
-
-    augmentObject = augment.safe_get_id(augment_id=augmentID)
-    if augmentObject is None:
-        print('Augment {} does not exist'.format(augmentID))
-    else:
-        augmentObject.delete()
+def deleteAugment(data):
+    pass
 
 
-def deleteAugmentName(data):
-    name = data['name']
-    setID = data['set_id']
-
-    augmentObject = augment.safe_get_name(name=name, set_id=setID)
-    if augmentObject is None:
-        print('Augment {} does not exist'.format(name))
-    else:
-        augmentObject.delete()

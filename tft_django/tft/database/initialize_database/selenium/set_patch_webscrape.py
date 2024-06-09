@@ -10,7 +10,7 @@ import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "tft_django.settings")
 django.setup()
 
-from tft.misc import insertSet, insertPatch
+from tft.utils.insert_functions import insertSet, insertPatch
 
 
 def webscrape_set_data(browser):

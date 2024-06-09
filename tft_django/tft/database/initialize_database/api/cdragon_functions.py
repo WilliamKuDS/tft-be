@@ -1,4 +1,4 @@
-from tft.misc import insertChampion, insertTrait, insertItem, insertAugment, insertMisc
+from tft.utils.insert_functions import insertChampion, insertTrait, insertItem, insertAugment, insertMisc
 def read_champion_and_add_to_database(champion, patch_id):
     try:
         champion['patch_id'] = patch_id

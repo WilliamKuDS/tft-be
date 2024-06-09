@@ -15,7 +15,6 @@ def readSummoner(request):
     return HttpResponse(data)
 
 
-
 def updateSummoner(request):
     playerNameRegion = request.headers["playerNameRegion"]
     service_code = service.updateSummoner(playerNameRegion)
@@ -27,10 +26,9 @@ def deleteSummoner(request):
     service.deleteSummoner(body)
     return HttpResponse('Summoner Deleted')
 
-def createUpdateSummoner(request):
-    account_data = {'puuid': request.headers['puuid'], 'gameName': request.headers['gameName'],
-                    'tagLine': request.headers['tagLine']}
-    status_code = service.readPlayer(account_data)
-    return HttpResponse(status=status_code)
 
-
+# def createUpdateSummoner(request):
+#     account_data = {'puuid': request.headers['puuid'], 'gameName': request.headers['gameName'],
+#                     'tagLine': request.headers['tagLine']}
+#     status_code = service.readSummoner(account_data)
+#     return HttpResponse(status=status_code)

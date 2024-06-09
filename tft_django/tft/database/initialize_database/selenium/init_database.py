@@ -3,7 +3,7 @@ import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "tft_django.settings")
 django.setup()
 
-from tft.misc import insertRegion
+from tft.utils.insert_functions import insertRegion
 from tft.database.selenium.webdriver_selenium import load_headless_browser
 from tft.database.initialize_database.selenium.set_patch_webscrape import webscrape_set_data,iterate_thru_patches_urls_from_set_ids
 
