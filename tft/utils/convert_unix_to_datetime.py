@@ -1,6 +1,7 @@
 import datetime
 from django.utils import timezone
 
+
 def convert_unix_to_datetime(unix_timestamp):
     # Convert Unix timestamp in milliseconds to seconds
     timestamp_in_seconds = unix_timestamp / 1000

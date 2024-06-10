@@ -33,6 +33,6 @@ def getBasicMatch(request):
     return HttpResponse(data)
 
 def getDetailedMatch(request):
-    match_id = request.headers['matchID']
-    data = service.getDetailedMatch(match_id)
+    puuid, match_id = request.headers['puuid'], request.headers['matchID']
+    data = service.getDetailedMatch(puuid, match_id)
     return HttpResponse(data)

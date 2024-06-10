@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import account, region, summoner, league, summoner_league
+from .models import companion
 from .models import set, patch
 from .models import trait, trait_effect
 from .models import champion, champion_stats, champion_ability
@@ -61,6 +62,7 @@ admin.site.register(augment)
 admin.site.register(miscellaneous)
 admin.site.register(match, MatchAdmin)
 admin.site.register(match_summoner)
+admin.site.register(companion)
 # admin.site.register(game_unit)
 # admin.site.register(game_info)
 # admin.site.register(game)

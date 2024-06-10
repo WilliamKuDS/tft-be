@@ -2,7 +2,8 @@ from django.utils import timezone
 from django.db import transaction
 from tft.models import account, region, summoner, league, summoner_league, champion_stats, champion_ability
 from tft.models import set, patch, trait, trait_effect, champion, item, augment, miscellaneous
-from tft.models import match, match_summoner
+from tft.models import match, match_summoner, companion
+from tft.utils.match_utils import expandMatchSummonerAugments, expandMatchSummonerTraits, expandMatchSummonerUnits
 
 
 def insert_object(model, lookup_params, data_dict):
@@ -27,20 +28,6 @@ def insertAccount(data):
             return insert_object(account, account_lookup_params, account_dict)
     except Exception as e:
         raise Exception(f"Error inserting account {data['puuid']}. Error: {e}")
-
-
-def insertRegion(data):
-    try:
-        with transaction.atomic():
-            region_lookup_params = {'region_id': data['region_id']}
-            region_dict = {
-                'label': data['label'],
-                'server': data['server'],
-                'description': data['description'],
-            }
-            return insert_object(region, region_lookup_params, region_dict)
-    except Exception as e:
-        raise Exception(f"Error inserting region {data['region_id']}. Error: {e}")
 
 
 def insertSummoner(data):
@@ -102,6 +89,21 @@ def insertSummonerLeague(data):
         raise Exception(f"Error inserting SummonerLeague {data['summonerId']}. Error: {e}")
 
 
+
+def insertRegion(data):
+    try:
+        with transaction.atomic():
+            region_lookup_params = {'region_id': data['region_id']}
+            region_dict = {
+                'label': data['label'],
+                'server': data['server'],
+                'description': data['description'],
+            }
+            return insert_object(region, region_lookup_params, region_dict)
+    except Exception as e:
+        raise Exception(f"Error inserting region {data['region_id']}. Error: {e}")
+
+
 def insertSet(data):
     try:
         with transaction.atomic():
@@ -153,8 +155,8 @@ def insertTrait(data):
                     trait_effect(
                         trait_id=insert_trait,
                         style=effect.get('style'),
-                        min_units=effect['min_units'],
-                        max_units=effect['max_units'],
+                        min_units=effect['minUnits'],
+                        max_units=effect['maxUnits'],
                         variables=effect['variables'],
                     ) for effect in data['effects']
                 ]
@@ -314,7 +316,6 @@ def insertMatch(data):
             insert_match = match(**data)
             insert_match.save()
             return insert_match
-
     except Exception as e:
         raise Exception(f"Match {data['match_id']} input incorrect. Error: {e}")
 
@@ -323,11 +324,33 @@ def insertMatchSummoner(data):
     try:
         with transaction.atomic():
             data['puuid'] = account.safe_get_by_puuid(data['puuid'])
-            # summonerLeagueObject = summoner.safe_get_by_puuid_region(data['puuid'], data['region'])
-            # data['tier'] = summonerLeagueObject.tier
-            # data['rank'] = summonerLeagueObject.rank
+            patch_id = data.pop('patch', None)
+            data['augments'] = expandMatchSummonerAugments(data['augments'], patch_id)
+            data['traits'] = expandMatchSummonerTraits(data['traits'], patch_id)
+            data['units'] = expandMatchSummonerUnits(data['units'], patch_id)
             insert_match_summoner = match_summoner(**data)
             insert_match_summoner.save()
-
     except Exception as e:
         raise Exception(f"Match Summoner {data['match_id']} {data['puuid']} input incorrect. Error: {e}")
+
+def insertCompanion(data):
+    try:
+        with transaction.atomic():
+            companion_lookup_params = {'content_id': data['contentId']}
+            companion_dict = {
+                'item_id': data['itemId'],
+                'name': data['name'],
+                'loadout_icon': data['loadoutsIcon'],
+                'description': data['description'],
+                'level': data['level'],
+                'species_name': data['speciesName'],
+                'species_id': data['speciesId'],
+                'rarity': data['rarity'],
+                'rarity_value': data['rarityValue'],
+                'is_default': data['isDefault'],
+                'upgrades': data['upgrades'],
+                'tft_only': data['TFTOnly'],
+            }
+            return insert_object(companion, companion_lookup_params, companion_dict)
+    except Exception as e:
+        raise Exception(f"Companion {data['contentId']} {data['name']} input incorrect. Error: {e}")

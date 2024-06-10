@@ -146,6 +146,31 @@ class summoner_league(models.Model):
             return None
 
 
+class companion(models.Model):
+    content_id = models.CharField(max_length=100, primary_key=True)
+    item_id = models.IntegerField()
+    name = models.CharField(max_length=50)
+    loadout_icon = models.CharField(max_length=150)
+    description = models.TextField()
+    level = models.IntegerField()
+    species_name = models.CharField(max_length=20)
+    species_id = models.IntegerField()
+    rarity = models.CharField(max_length=10)
+    rarity_value = models.IntegerField()
+    is_default = models.BooleanField()
+    upgrades = models.JSONField()
+    tft_only = models.BooleanField()
+
+    def safe_get_by_content_id(content_id):
+        try:
+            return companion.objects.get(content_id=content_id)
+        except companion.DoesNotExist:
+            return None
+
+    def __str__(self):
+        return f'{self.name} - {self.level}'
+
+
 class set(models.Model):
     set_id = models.FloatField(primary_key=True)
     set_name = models.CharField(max_length=50)
@@ -337,6 +362,12 @@ class item(models.Model):
             models.Index(fields=['patch_id']),
         ]
 
+    def safe_get_api_name_patch(api_name, patch_id):
+        try:
+            return item.objects.get(api_name=api_name, patch_id=patch_id)
+        except item.DoesNotExist:
+            return None
+
     def __str__(self):
         return f'{self.api_name} - {self.patch_id}'
 
@@ -362,6 +393,12 @@ class augment(models.Model):
             models.Index(fields=['patch_id']),
         ]
 
+    def safe_get_api_name_patch(api_name, patch_id):
+        try:
+            return augment.objects.get(api_name=api_name, patch_id=patch_id)
+        except augment.DoesNotExist:
+            return None
+
     def __str__(self):
         return f'{self.api_name} - {self.patch_id}'
 
@@ -386,6 +423,12 @@ class miscellaneous(models.Model):
             models.Index(fields=['api_name']),
             models.Index(fields=['patch_id']),
         ]
+
+    def safe_get_api_name_patch(api_name, patch_id):
+        try:
+            return miscellaneous.objects.get(api_name=api_name, patch_id=patch_id)
+        except miscellaneous.DoesNotExist:
+            return None
 
     def __str__(self):
         return f'{self.api_name} - {self.patch_id}'

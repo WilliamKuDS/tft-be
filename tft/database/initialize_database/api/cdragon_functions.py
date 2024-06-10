@@ -17,16 +17,16 @@ def read_item_or_augment_and_add_to_database(data, patch_id):
     try:
         data['patch_id'] = patch_id
         if 'apiName' in data:
-            if "Item" in data.get('apiName'):
+            if "_Item_" in data.get('apiName'):
                 insertItem(data)
-            elif "Augment" in data.get('apiName'):
+            elif "_Augment_" in data.get('apiName'):
                 insertAugment(data)
             else:
                 insertMisc(data)
         else:
-            if "Item" in data.get('icon'):
+            if "_Item_" in data.get('icon'):
                 insertItem(data)
-            elif "Augment" in data.get('icon'):
+            elif "_Augment_" in data.get('icon'):
                 insertAugment(data)
             else:
                 insertMisc(data)
