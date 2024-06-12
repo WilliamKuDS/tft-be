@@ -28,16 +28,9 @@ def deleteMatch(request):
     return HttpResponse('Match Deleted')
 
 def getBasicMatch(request):
-    puuid, region = request.headers['puuid'], request.headers['region']
-    cursor = request.GET.get('cursor', 0)
-    match, next_cursor = service.getBasicMatch(puuid, region, cursor)
-
-    data = {
-        'results': match,
-        'next': next_cursor,
-    }
-
-    return JsonResponse(data)
+    puuid, region, page = request.headers['puuid'], request.headers['region'], request.headers['page']
+    data = service.getBasicMatch(puuid, region, page)
+    return HttpResponse(data)
 
 def getDetailedMatch(request):
     puuid, match_id = request.headers['puuid'], request.headers['matchID']

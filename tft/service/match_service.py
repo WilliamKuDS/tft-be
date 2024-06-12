@@ -1,6 +1,6 @@
 import json
 
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage
 from django.forms import model_to_dict
 
 from tft.models import match_summoner, match, companion
@@ -36,13 +36,15 @@ def updateMatch(data):
 def deleteMatch(data):
     pass
 
-def getBasicMatch(puuid, region, cursor):
+def getBasicMatch(puuid, region, page):
     match_summoner_data = match_summoner.objects.filter(puuid=puuid, match_id__region=region)
-    paginator = Paginator(match_summoner_data, per_page=5)
-    page_object = paginator.get_page(cursor)
-    next_cursor = page_object.next_page_number() if page_object.has_next() else None
+    sorted_match_summoner_data = match_summoner_data.order_by('-match_id__game_creation')
+    paginator = Paginator(sorted_match_summoner_data, per_page=10)
+    try:
+        page_object = paginator.page(page)
+    except EmptyPage:
+        return json.dumps({})
 
-    companion_icon_local_location = "/tft/companion/"
     basic_match_data = [
         {
             'match_id': ms_data.match_id_id,
@@ -51,14 +53,14 @@ def getBasicMatch(puuid, region, cursor):
             'placement': ms_data.placement,
             'lobby_rank': None,
             'patch': ms_data.match_id.patch,
-            'companion_icon': companion_icon_local_location + companion.safe_get_by_content_id(ms_data.companion['content_ID']).loadout_icon.split('/')[-1].lower()
+            'companion_icon': companion.safe_get_by_content_id(ms_data.companion['content_ID']).loadout_icon.split('/')[-1].lower()
         }
         for ms_data in page_object
     ]
-    sorted_match_summoner_data = sorted(basic_match_data, key=lambda d: d['game_creation'], reverse=True)
+    # sorted_match_summoner_data = sorted(basic_match_data, key=lambda d: d['game_creation'], reverse=True)
 
-    json_basic_match_data = json.dumps(sorted_match_summoner_data)
-    return json_basic_match_data, next_cursor
+    json_basic_match_data = json.dumps(basic_match_data)
+    return json_basic_match_data
 
 
 def getDetailedMatch(puuid, match_id):
