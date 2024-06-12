@@ -1,9 +1,12 @@
 import json
 
+from django.core.paginator import Paginator
 from django.forms import model_to_dict
 
 from tft.models import match_summoner, match, companion
 from django.core import serializers
+
+from tft.utils.convert_unix_to_datetime import convert_unix_to_date
 
 
 def createMatch(data):
@@ -33,26 +36,29 @@ def updateMatch(data):
 def deleteMatch(data):
     pass
 
-def getBasicMatch(puuid, region):
+def getBasicMatch(puuid, region, cursor):
     match_summoner_data = match_summoner.objects.filter(puuid=puuid, match_id__region=region)
-    companion_icon_local_location = "/tft/companion/"
+    paginator = Paginator(match_summoner_data, per_page=5)
+    page_object = paginator.get_page(cursor)
+    next_cursor = page_object.next_page_number() if page_object.has_next() else None
 
+    companion_icon_local_location = "/tft/companion/"
     basic_match_data = [
         {
             'match_id': ms_data.match_id_id,
             'puuid': puuid,
-            'game_creation': ms_data.match_id.game_creation,
+            'game_creation': str(convert_unix_to_date(ms_data.match_id.game_creation)),
             'placement': ms_data.placement,
             'lobby_rank': None,
             'patch': ms_data.match_id.patch,
             'companion_icon': companion_icon_local_location + companion.safe_get_by_content_id(ms_data.companion['content_ID']).loadout_icon.split('/')[-1].lower()
         }
-        for ms_data in match_summoner_data
+        for ms_data in page_object
     ]
     sorted_match_summoner_data = sorted(basic_match_data, key=lambda d: d['game_creation'], reverse=True)
 
     json_basic_match_data = json.dumps(sorted_match_summoner_data)
-    return json_basic_match_data
+    return json_basic_match_data, next_cursor
 
 
 def getDetailedMatch(puuid, match_id):

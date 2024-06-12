@@ -57,8 +57,17 @@ for patch in patch_list:
         [read_trait_and_add_to_database(trait, patch_id) for trait in traits_data]
         [read_champion_and_add_to_database(champion, patch_id) for champion in champion_data]
 
+        tft_item_url = f"https://raw.communitydragon.org/{url_patch_id}/plugins/rcp-be-lol-game-data/global/default/v1/tftitems.json"
+        tft_item_data_response = requests.get(tft_item_url)
+        tft_item_data_json = tft_item_data_response.json()
         augments_and_items_data = tft_patch_data_json['items']
-        [read_item_or_augment_and_add_to_database(data, patch_id) for data in augments_and_items_data]
+        [read_item_or_augment_and_add_to_database(data,
+                                                  patch_id,
+                                                  [item for item in tft_item_data_json
+                                                   if ('apiName' in data and item['nameId'] == data['apiName'])
+                                                   or ('name' in data and item['nameId'] == data['name'])]
+                                                  )
+         for data in augments_and_items_data]
 
     except Exception as e:
         print('{} failed. Error: {}'.format(url_patch_id, e))

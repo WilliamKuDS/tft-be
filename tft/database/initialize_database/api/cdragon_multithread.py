@@ -5,7 +5,7 @@ import django
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
+from urllib3.util.retry import Retry
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "tft_django.settings")
 django.setup()
@@ -57,13 +57,27 @@ def process_patch(patch):
         traits_data = champions_and_traits_data['traits']
         augments_and_items_data = tft_patch_data_json['items']
 
+        prev_tft_item_data_json = {}
+        try:
+            tft_item_url = f"https://raw.communitydragon.org/{url_patch_id}/plugins/rcp-be-lol-game-data/global/default/v1/tftitems.json"
+            tft_item_data_response = session.get(tft_item_url)
+            tft_item_data_response.raise_for_status()
+            new_tft_item_data_json = tft_item_data_response.json()
+            tft_item_data_json = new_tft_item_data_json
+        except:
+            print('No Item JSON for this patch, using previous one')
+            tft_item_data_json = prev_tft_item_data_json
+
+        prev_tft_item_data_json = tft_item_data_json
+
         # Batch processing
         for trait in traits_data:
             read_trait_and_add_to_database(trait, patch_id)
         for champion in champion_data:
             read_champion_and_add_to_database(champion, patch_id)
         for data in augments_and_items_data:
-            read_item_or_augment_and_add_to_database(data, patch_id)
+            read_item_or_augment_and_add_to_database(data, patch_id, tft_item_data_json)
+
 
     except Exception as e:
         print('{} failed. Error: {}\n{}'.format(url_patch_id, e, traceback.format_exc()))

@@ -13,3 +13,12 @@ def convert_unix_to_datetime(unix_timestamp):
     current_datetime = timezone.make_aware(naive_datetime, timezone.get_current_timezone())
 
     return current_datetime
+
+def convert_unix_to_date(unix_timestamp):
+    # Convert Unix timestamp in milliseconds to seconds
+    timestamp_seconds = unix_timestamp / 1000
+
+    # Convert to date
+    date = datetime.datetime.fromtimestamp(timestamp_seconds).date()
+
+    return date
