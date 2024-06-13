@@ -1,7 +1,7 @@
 from django.urls import path
 
 from . import views
-from tft.api import augment_api, match_api, item_api, patch_api, account_api, summoner_api, set_api, trait_api, champion_api, profile_api
+from tft.api import augment_api, match_api, item_api, patch_api, account_api, summoner_api, set_api, trait_api, champion_api, profile_api, openai_api
 
 urlpatterns = [
     path("", views.index, name="index"),
@@ -66,4 +66,7 @@ urlpatterns = [
     path("unit/create", champion_api.createChampion, name="createChampion"),
     path("unit/update", champion_api.updateChampion, name="updateChampion"),
     path("unit/delete", champion_api.deleteChampion, name="deleteChampion"),
+    # ------------------------------------------
+    # OpenAI API Paths
+    path("summoner/analyze", openai_api.analyze_performance, name="analyzePerformance"),
 ]
