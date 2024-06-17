@@ -1,5 +1,5 @@
 import json
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 import tft.service.set_service as service
 
 
@@ -13,6 +13,11 @@ def readSet(request):
     body = json.loads(request.body)
     data = service.readSet(body)
     return HttpResponse(data)
+
+
+def readSetAll(request):
+    data = service.readSetAll()
+    return HttpResponse(data, content_type='application/json')
 
 
 def updateSet(request):

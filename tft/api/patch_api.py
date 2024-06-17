@@ -1,5 +1,5 @@
 import json
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 import tft.service.patch_service as service
 
 
@@ -14,6 +14,10 @@ def readPatch(request):
     data = service.readPatch(body)
     return HttpResponse(data)
 
+
+def readPatchAll(request):
+    data = service.readPatchAll()
+    return JsonResponse(data, safe=False)
 
 
 def updatePatch(request):

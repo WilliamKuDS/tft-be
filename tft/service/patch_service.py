@@ -1,6 +1,7 @@
 from tft.models import patch
 from django.utils import timezone
 from django.db import models
+from django.core import serializers
 from django.forms.models import model_to_dict
 from json import dumps
 
@@ -12,6 +13,11 @@ def createPatch(data):
 
 def readPatch(data):
     pass
+
+def readPatchAll():
+    patchQuerySet = patch.objects.all()
+    patchQuerySetList = list(patchQuerySet.values("patch_id", "set_id_id"))
+    return patchQuerySetList
 
 
 def updatePatch(data):

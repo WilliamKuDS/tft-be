@@ -44,12 +44,14 @@ urlpatterns = [
     # ------------------------------------------
     # Patch API Paths
     path("patch", patch_api.readPatch, name="readPatch"),
+    path("patch/all", patch_api.readPatchAll, name="readPatchAll"),
     path("patch/create", patch_api.createPatch, name="createPatch"),
     path("patch/update", patch_api.updatePatch, name="updatePatch"),
     path("patch/delete", patch_api.deletePatch, name="deletePatch"),
     # ------------------------------------------
     # Set API Paths
     path("set", set_api.readSet, name="readSet"),
+    path("set/all", set_api.readSetAll, name="readSetAll"),
     path("set/create", set_api.createSet, name="createSet"),
     path("set/update", set_api.updateSet, name="updateSet"),
     path("set/delete", set_api.deleteSetByID, name="deleteSet"),
