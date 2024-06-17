@@ -6,5 +6,11 @@ import tft.service.openai_service as service
 
 def analyze_performance(request):
     puuid = request.headers['puuid']
-    data = service.analyze_performance(puuid)
+    data = service.analyzePerformance(puuid)
+    return JsonResponse(data)
+
+
+def match_recommendations(request):
+    puuid = request.headers['puuid']
+    data = service.matchRecommendation(puuid)
     return JsonResponse(data)

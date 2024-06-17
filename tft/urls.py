@@ -69,4 +69,5 @@ urlpatterns = [
     # ------------------------------------------
     # OpenAI API Paths
     path("summoner/analyze", openai_api.analyze_performance, name="analyzePerformance"),
+    path("summoner/recommendations", openai_api.match_recommendations, name="matchRecommendations"),
 ]
