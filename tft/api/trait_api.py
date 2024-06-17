@@ -15,6 +15,12 @@ def readTrait(request):
     return HttpResponse(data)
 
 
+def readTraitAllByPatch(request):
+    patch = request.headers['patch']
+    data = service.readTraitAllByPatch(patch)
+    return HttpResponse(data)
+
+
 def updateTrait(request):
     body = json.loads(request.body)
     data = service.updateTrait(body)

@@ -12,6 +12,10 @@ def readItem(data):
     pass
 
 
+def readItemAllByPatch(patch):
+    championQuerySet = item.objects.filter(patch_id_id=patch)
+    championQuerySet_json = serializers.serialize('json', championQuerySet)
+    return championQuerySet_json
 
 
 def readItemAll():
@@ -23,8 +27,6 @@ def readItemAll():
 
 def updateItem(data):
     pass
-
-
 
 
 def deleteItem(data):

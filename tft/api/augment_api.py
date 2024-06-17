@@ -15,6 +15,11 @@ def readAugment(request):
     return HttpResponse(data)
 
 
+def readAugmentAllByPatch(request):
+    patch = request.headers['patch']
+    data = service.readAugmentAllByPatch(patch)
+    return HttpResponse(data)
+
 
 def updateAugment(request):
     body = json.loads(request.body)
@@ -26,4 +31,3 @@ def deleteAugment(request):
     body = json.loads(request.body)
     service.deleteAugment(body)
     return HttpResponse('Augment Deleted')
-

@@ -19,6 +19,12 @@ def readChampionAll():
     return jsonData
 
 
+def readChampionAllByPatch(patch):
+    championQuerySet = champion.objects.filter(patch_id_id=patch)
+    championQuerySet_json = serializers.serialize('json', championQuerySet)
+    return championQuerySet_json
+
+
 def updateChampion(data):
     pass
 

@@ -15,6 +15,11 @@ def readItem(request):
     return HttpResponse(data)
 
 
+def readItemAllByPatch(request):
+    patch = request.headers['patch']
+    data = service.readItemAllByPatch(patch)
+    return HttpResponse(data)
+
 
 def readItemAll(request):
     data = service.readItemAll()
@@ -31,4 +36,3 @@ def deleteItem(request):
     body = json.loads(request.body)
     service.deleteItem(body)
     return HttpResponse('Item Deleted')
-

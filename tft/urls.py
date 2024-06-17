@@ -29,19 +29,6 @@ urlpatterns = [
     path("match/update", match_api.updateMatch, name="updateGame"),
     path("match/delete", match_api.deleteMatch, name="deleteGame"),
     # ------------------------------------------
-    # Item API Paths
-    path("item", item_api.readItem, name="readItem"),
-    path("item/all", item_api.readItemAll, name="readItemAll"),
-    path("item/create", item_api.createItem, name="createItem"),
-    path("item/update", item_api.updateItem, name="updateItem"),
-    path("item/delete", item_api.deleteItem, name="deleteItem"),
-    # ------------------------------------------
-    # Augments API Paths
-    path("augment", augment_api.readAugment, name="readAugment"),
-    path("augment/create", augment_api.createAugment, name="createAugment"),
-    path("augment/update", augment_api.updateAugment, name="updateAugment"),
-    path("augment/delete", augment_api.deleteAugment, name="deleteAugment"),
-    # ------------------------------------------
     # Patch API Paths
     path("patch", patch_api.readPatch, name="readPatch"),
     path("patch/all", patch_api.readPatchAll, name="readPatchAll"),
@@ -56,18 +43,35 @@ urlpatterns = [
     path("set/update", set_api.updateSet, name="updateSet"),
     path("set/delete", set_api.deleteSetByID, name="deleteSet"),
     # ------------------------------------------
+    # Augments API Paths
+    path("augment", augment_api.readAugment, name="readAugment"),
+    path("augment/all/patch", augment_api.readAugmentAllByPatch, name="readAugmentAllByPatch"),
+    path("augment/create", augment_api.createAugment, name="createAugment"),
+    path("augment/update", augment_api.updateAugment, name="updateAugment"),
+    path("augment/delete", augment_api.deleteAugment, name="deleteAugment"),
+    # ------------------------------------------
+    # Item API Paths
+    path("item", item_api.readItem, name="readItem"),
+    path("item/all", item_api.readItemAll, name="readItemAll"),
+    path("item/all/patch", item_api.readItemAllByPatch, name="readItemAllByPatch"),
+    path("item/create", item_api.createItem, name="createItem"),
+    path("item/update", item_api.updateItem, name="updateItem"),
+    path("item/delete", item_api.deleteItem, name="deleteItem"),
+    # ------------------------------------------
     # Trait API Paths
     path("trait", trait_api.readTrait, name="readTrait"),
+    path("trait/all/patch", trait_api.readTraitAllByPatch, name="readTraitAllByPatch"),
     path("trait/create", trait_api.createTrait, name="createTrait"),
     path("trait/update", trait_api.updateTrait, name="updateTrait"),
     path("traitid/delete", trait_api.deleteTraitByID, name="deleteTrait"),
     # ------------------------------------------
-    # Unit API Paths
-    path("unit", champion_api.readChampion, name="readChampion"),
-    path("unit/all", champion_api.readChampionAll, name="readChampionAll"),
-    path("unit/create", champion_api.createChampion, name="createChampion"),
-    path("unit/update", champion_api.updateChampion, name="updateChampion"),
-    path("unit/delete", champion_api.deleteChampion, name="deleteChampion"),
+    # Champion API Paths
+    path("champion", champion_api.readChampion, name="readChampion"),
+    path("champion/all", champion_api.readChampionAll, name="readChampionAll"),
+    path("champion/all/patch", champion_api.readChampionAllByPatch, name="readChampionAllByPatch"),
+    path("champion/create", champion_api.createChampion, name="createChampion"),
+    path("champion/update", champion_api.updateChampion, name="updateChampion"),
+    path("champion/delete", champion_api.deleteChampion, name="deleteChampion"),
     # ------------------------------------------
     # OpenAI API Paths
     path("summoner/analyze", openai_api.analyze_performance, name="analyzePerformance"),

@@ -15,6 +15,11 @@ def readChampion(request):
     return HttpResponse(data)
 
 
+def readChampionAllByPatch(request):
+    patch = request.headers['patch']
+    data = service.readChampionAllByPatch(patch)
+    print(data)
+    return HttpResponse(data)
 
 
 def readChampionAll(request):
@@ -32,4 +37,3 @@ def deleteChampion(request):
     body = json.loads(request.body)
     service.deleteUnit(body)
     return HttpResponse('Unit Deleted')
-
