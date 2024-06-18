@@ -6,4 +6,3 @@ tft_ml/pipeline/data
 tft_ml/pipeline/test-files
 tft_ml/pipeline/.ipynb_checkpoints
 tft/migrations
-tft_selenium
