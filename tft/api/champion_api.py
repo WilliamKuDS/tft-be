@@ -18,7 +18,6 @@ def readChampion(request):
 def readChampionAllByPatch(request):
     patch = request.headers['patch']
     data = service.readChampionAllByPatch(patch)
-    print(data)
     return HttpResponse(data)
 
 
