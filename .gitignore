@@ -1,8 +1,8 @@
 *.json
 .env
-tft_django/settings.py
 tft_ml/pipeline/database/database.ini
 tft_ml/pipeline/data
 tft_ml/pipeline/test-files
 tft_ml/pipeline/.ipynb_checkpoints
 tft/migrations
+static
