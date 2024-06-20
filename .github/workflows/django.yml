@@ -2,14 +2,15 @@ name: Django CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "development" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "development" ]
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
+    environment: development
     strategy:
       max-parallel: 4
       matrix:
@@ -28,3 +29,12 @@ jobs:
     - name: Run Tests
       run: |
         python manage.py test
+      env:
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          TFT_RIOT_API_KEY: ${{ secrets.TFT_RIOT_API_KEY }}
+          OPEN_AI_API_KEY: ${{ secrets.OPEN_AI_API_KEY }}
