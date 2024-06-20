@@ -1,5 +1,6 @@
 *.json
 .env
+.DS_Store
 tft_ml/pipeline/database/database.ini
 tft_ml/pipeline/data
 tft_ml/pipeline/test-files
