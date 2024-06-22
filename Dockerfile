@@ -8,4 +8,7 @@ RUN pip3 install -r dependencies.txt
 
 COPY . .
 
-ENTRYPOINT ["gunicorn", "--bind", "0.0.0.0:8000", "tft_django.wsgi"]
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
