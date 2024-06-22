@@ -11,4 +11,6 @@ COPY . .
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+ENV DJANGO_ENV=production
+
 ENTRYPOINT ["/entrypoint.sh"]
