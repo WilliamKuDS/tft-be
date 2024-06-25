@@ -8,4 +8,9 @@ RUN pip3 install -r dependencies.txt
 
 COPY . .
 
-ENTRYPOINT ["gunicorn", "tft_django.wsgi"]
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENV DJANGO_ENV=production
+
+ENTRYPOINT ["/entrypoint.sh"]
