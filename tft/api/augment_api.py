@@ -1,5 +1,5 @@
 import json
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 import tft.service.augment_service as service
 
 
@@ -16,9 +16,12 @@ def readAugment(request):
 
 
 def readAugmentAllByPatch(request):
-    patch = request.headers['patch']
-    data = service.readAugmentAllByPatch(patch)
-    return HttpResponse(data)
+    patch = request.GET.get('patch')
+    page = request.GET.get('page', 1)
+    page_size = request.GET.get('page_size', 20)
+    order_by = request.GET.get('order_by', 'id')
+    data = service.readAugmentAllByPatch(patch, page, page_size, order_by)
+    return JsonResponse(data)
 
 
 def updateAugment(request):
